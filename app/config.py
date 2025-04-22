@@ -12,7 +12,7 @@ class Settings:
     APP_DEBUG: bool = os.getenv("APP_DEBUG", "True").lower() in ("true", "1")
 
     # Configuration serveur
-    HOST: str = os.getenv("HOST", "127.0.0.1")
+    HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", 8000))
 
     # Configuration BDD

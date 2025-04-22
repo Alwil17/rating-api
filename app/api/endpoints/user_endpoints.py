@@ -9,7 +9,7 @@ from app.api.security import oauth2_scheme, require_role, verify_token
 router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.post("", response_model=UserResponse, status_code=201)
-def create_user(user_data: UserCreateDTO, db: Session = Depends(get_db)):
+def create_user(user_data: UserCreateDTO, db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
     user_service = UserService(db)
     try:
         user = user_service.create_user(user_data)
