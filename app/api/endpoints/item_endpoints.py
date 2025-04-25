@@ -24,7 +24,7 @@ def get_item(item_id: int, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/", response_model=list[ItemResponse])
+@router.get("", response_model=list[ItemResponse])
 def list_items(db: Session = Depends(get_db)):
     items = ItemService(db).list_items()
     # items is List[Tuple[Item, avg, count]]
