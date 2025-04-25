@@ -18,16 +18,24 @@ def create_item(item_data: ItemCreateDTO, token: str = Depends(oauth2_scheme), d
 
 @router.get("/{item_id}", response_model=ItemResponse)
 def get_item(item_id: int, db: Session = Depends(get_db)):
-    item_service = ItemService(db)
-    item = item_service.get_item_by_id(item_id)
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
+    item, avg, count = ItemService(db).get_item(item_id)
+    return ItemResponse.model_validate(
+        item, avg_rating=avg, count_rating=count
+    )
 
-@router.get("", response_model=list[ItemResponse])
+
+@router.get("/", response_model=list[ItemResponse])
 def list_items(db: Session = Depends(get_db)):
-    item_service = ItemService(db)
-    return item_service.list_items()
+    items = ItemService(db).list_items()
+    # items is List[Tuple[Item, avg, count]]
+    return [
+        ItemResponse.model_validate(  # Pydantic v2: model_validate
+            item,
+            avg_rating=avg,
+            count_rating=count
+        )
+        for item, avg, count in items
+    ]
 
 @router.put("/{item_id}", response_model=ItemResponse)
 def update_item(item_id: int, item_data: ItemUpdateDTO, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
@@ -37,6 +45,7 @@ def update_item(item_id: int, item_data: ItemUpdateDTO, token: str = Depends(oau
     if not updated_item:
         raise HTTPException(status_code=404, detail="Item not found")
     return updated_item
+
 
 @router.delete("/{item_id}", status_code=204)
 def delete_item(item_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), role: str = Depends(require_role(["admin"]))):
