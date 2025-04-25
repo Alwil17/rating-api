@@ -46,6 +46,7 @@ def list_items(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.put("/{item_id}/categories", status_code=204)
 def set_item_categories(
     item_id: int,
