@@ -1,6 +1,8 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime
+
+from app.application.schemas.category_dto import CategoryDTO
 
 # ------------------------------
 # Item DTOs et Réponses
@@ -23,6 +25,7 @@ class ItemResponse(ItemBaseDTO):
     image_url: Optional[HttpUrl]  # URL validée
     avg_rating: float
     count_rating: int
+    categories: List[CategoryDTO]
     created_at: datetime
     updated_at: datetime
 
