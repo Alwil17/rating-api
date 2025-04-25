@@ -28,3 +28,7 @@ class ItemService:
 
     def delete_item(self, item_id: int) -> bool:
         return self.repository.delete(item_id)
+    
+    def set_item_categories(self, item_id: int, category_ids: list[int]):
+        item = self.get_item(item_id)
+        return self.repository.set_categories(item[0], category_ids)
