@@ -49,6 +49,19 @@ def set_item_categories(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
+@router.put("/{item_id}/tags", status_code=204)
+def set_item_tags(
+    item_id: int,
+    tag_names: list[str],
+    db: Session = Depends(get_db)
+):
+    try:
+        ItemService(db).set_item_tags(item_id, tag_names)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @router.put("/{item_id}", response_model=ItemResponse)
 def update_item(item_id: int, item_data: ItemUpdateDTO, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
     verify_token(token)
