@@ -1,6 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from app.domain.category import Category
 from app.domain.item import Item
 from app.application.schemas.item_dto import ItemCreateDTO, ItemUpdateDTO
 from app.domain.rating import Rating
@@ -32,6 +33,12 @@ class ItemRepository:
             .first()
         )
 
+    def set_categories(self, item: Item, category_ids: list[int]):
+        item.categories = self.db.query(Category).filter(Category.id.in_(category_ids)).all()
+        self.db.commit()
+        self.db.refresh(item)
+        return item
+    
     def list(self) -> List[Item]:
         return self.db.query(Item).all()
     
