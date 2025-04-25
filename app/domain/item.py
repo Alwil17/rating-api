@@ -18,7 +18,6 @@ class Item(Base):
     categories = relationship("Category",secondary=item_category,back_populates="items")
     # Relation vers les tags
     tags = relationship("Tag", secondary=item_tag, back_populates="items")
-
     # Relation vers les ratings
     ratings = relationship("Rating", back_populates="item", cascade="all, delete-orphan")
     
