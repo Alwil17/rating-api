@@ -1,4 +1,6 @@
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.params import Query
 from pydantic import conlist
 from sqlalchemy.orm import Session
 from app.application.schemas.item_dto import ItemCreateDTO, ItemUpdateDTO, ItemResponse
@@ -24,19 +26,25 @@ def get_item(item_id: int, db: Session = Depends(get_db)):
         item, avg_rating=avg, count_rating=count
     )
 
-
 @router.get("", response_model=list[ItemResponse])
-def list_items(db: Session = Depends(get_db)):
-    items = ItemService(db).list_items()
-    # items is List[Tuple[Item, avg, count]]
-    return [
-        ItemResponse.model_validate(  # Pydantic v2: model_validate
-            item,
-            avg_rating=avg,
-            count_rating=count
-        )
-        for item, avg, count in items
-    ]
+def list_items(
+    category_id: Optional[int] = None,
+    tags: Optional[List[str]] = Query(None, description="Filter by tag names"),
+    db: Session = Depends(get_db)
+):
+    try:
+        items = ItemService(db).list_items(category_id, tags)
+        # items: List[Tuple[Item, avg, count]]
+        return [
+            ItemResponse.model_validate(
+                item,
+                avg_rating=avg,
+                count_rating=count
+            )
+            for item, avg, count in items
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/{item_id}/categories", status_code=204)
 def set_item_categories(
