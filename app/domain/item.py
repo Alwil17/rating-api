@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship, declarative_base
-from app.domain import item_category
+from app.domain import item_category, item_tag
 from app.domain.base import Base
 
 class Item(Base):
@@ -14,11 +14,10 @@ class Item(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    categories = relationship(
-        "Category",
-        secondary=item_category,
-        back_populates="items"
-    )
+    # Relation vers les categories
+    categories = relationship("Category",secondary=item_category,back_populates="items")
+    # Relation vers les tags
+    tags = relationship("Tag", secondary=item_tag, back_populates="items")
 
     # Relation vers les ratings
     ratings = relationship("Rating", back_populates="item", cascade="all, delete-orphan")

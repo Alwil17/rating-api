@@ -10,8 +10,4 @@ class Tag(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True, nullable=False)
 
-    items = relationship(
-        "Item",
-        secondary=item_tag,
-        back_populates="tags"
-    )
+    items = relationship("Item", secondary=item_tag, back_populates="tags")
