@@ -50,17 +50,37 @@ class ItemRepository:
     def list(self) -> List[Item]:
         return self.db.query(Item).all()
     
-    def list_with_stats(self):
-        # SELECT items.*, AVG(ratings.value) AS avg_rating, COUNT(ratings.id) AS count_rating
-        return (
+    def list_with_stats(
+        self,
+        category_id: Optional[int] = None,
+        tag_names: Optional[List[str]] = None
+    ):
+        q = (
             self.db.query(
                 Item,
                 func.coalesce(func.avg(Rating.value), 0).label("avg_rating"),
                 func.count(Rating.id).label("count_rating")
             )
-            .outerjoin(Item.ratings)  # jointure sur ratings
-            .group_by(Item.id)
-            .all()
+            .outerjoin(Item.ratings)
+        )
+
+        # Filtrer par catégorie si demandé
+        if category_id is not None:
+            q = (
+                q.join(Item.categories)
+                 .filter(Category.id == category_id)
+            )
+
+        # Filtrer par tags si demandé
+        if tag_names:
+            q = (
+                q.join(Item.tags)
+                 .filter(Tag.name.in_(tag_names))
+            )
+
+        return (
+            q.group_by(Item.id)
+             .all()
         )
 
     def update(self, item_id: int, item_data: ItemUpdateDTO) -> Optional[Item]:
