@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import conlist
 from sqlalchemy.orm import Session
 from app.application.schemas.item_dto import ItemCreateDTO, ItemUpdateDTO, ItemResponse
 from app.application.services.item_service import ItemService
@@ -36,6 +37,17 @@ def list_items(db: Session = Depends(get_db)):
         )
         for item, avg, count in items
     ]
+
+@router.put("/{item_id}/categories", status_code=204)
+def set_item_categories(
+    item_id: int,
+    category_ids: conlist(item_type=int, min_length=1),
+    db: Session = Depends(get_db)
+):
+    try:
+        ItemService(db).set_item_categories(item_id, category_ids)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/{item_id}", response_model=ItemResponse)
 def update_item(item_id: int, item_data: ItemUpdateDTO, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
