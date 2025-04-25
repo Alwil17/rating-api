@@ -3,6 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from app.application.schemas.category_dto import CategoryDTO
+from app.application.schemas.tag_dto import TagDTO
 
 # ------------------------------
 # Item DTOs et Réponses
@@ -26,6 +27,7 @@ class ItemResponse(ItemBaseDTO):
     avg_rating: float
     count_rating: int
     categories: List[CategoryDTO]
+    tags: list[TagDTO] = []
     created_at: datetime
     updated_at: datetime
 
