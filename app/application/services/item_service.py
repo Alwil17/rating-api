@@ -32,3 +32,7 @@ class ItemService:
     def set_item_categories(self, item_id: int, category_ids: list[int]):
         item = self.get_item(item_id)
         return self.repository.set_categories(item[0], category_ids)
+    
+    def set_item_tags(self, item_id: int, tag_names: list[str]):
+        item = self.get_item(item_id)[0]
+        return self.repo.set_tags(item, tag_names)
