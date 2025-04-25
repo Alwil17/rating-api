@@ -1,5 +1,3 @@
-# app/application/services/item_service.py
-
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from app.domain.item import Item
