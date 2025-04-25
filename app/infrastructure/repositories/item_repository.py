@@ -5,6 +5,7 @@ from app.domain.category import Category
 from app.domain.item import Item
 from app.application.schemas.item_dto import ItemCreateDTO, ItemUpdateDTO
 from app.domain.rating import Rating
+from app.domain.tag import Tag
 
 class ItemRepository:
     def __init__(self, db: Session):
@@ -35,6 +36,13 @@ class ItemRepository:
 
     def set_categories(self, item: Item, category_ids: list[int]):
         item.categories = self.db.query(Category).filter(Category.id.in_(category_ids)).all()
+        self.db.commit()
+        self.db.refresh(item)
+        return item
+    
+    def set_tags(self, item: Item, tag_names: list[str]):
+        tags = [self.db.query(Tag).filter(Tag.name == name).first() or Tag(name=name) for name in tag_names]
+        item.tags = tags
         self.db.commit()
         self.db.refresh(item)
         return item
