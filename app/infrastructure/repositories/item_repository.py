@@ -1,7 +1,9 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.domain.item import Item
 from app.application.schemas.item_dto import ItemCreateDTO, ItemUpdateDTO
+from app.domain.rating import Rating
 
 class ItemRepository:
     def __init__(self, db: Session):
@@ -16,9 +18,35 @@ class ItemRepository:
 
     def get_by_id(self, item_id: int) -> Optional[Item]:
         return self.db.query(Item).filter(Item.id == item_id).first()
+    
+    def get_with_stats(self, item_id: int) -> Optional[Item]:
+        return (
+            self.db.query(
+                Item,
+                func.coalesce(func.avg(Rating.value), 0).label("avg_rating"),
+                func.count(Rating.id).label("count_rating")
+            )
+            .outerjoin(Item.ratings)
+            .filter(Item.id == item_id)
+            .group_by(Item.id)
+            .first()
+        )
 
     def list(self) -> List[Item]:
         return self.db.query(Item).all()
+    
+    def list_with_stats(self):
+        # SELECT items.*, AVG(ratings.value) AS avg_rating, COUNT(ratings.id) AS count_rating
+        return (
+            self.db.query(
+                Item,
+                func.coalesce(func.avg(Rating.value), 0).label("avg_rating"),
+                func.count(Rating.id).label("count_rating")
+            )
+            .outerjoin(Item.ratings)  # jointure sur ratings
+            .group_by(Item.id)
+            .all()
+        )
 
     def update(self, item_id: int, item_data: ItemUpdateDTO) -> Optional[Item]:
         item = self.get_by_id(item_id)
