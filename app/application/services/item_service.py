@@ -17,9 +17,13 @@ class ItemService:
             raise ValueError("Item not found")
         return result
     
-    def list_items(self) -> List[Tuple[Item, float, int]]:
-        # retourne une liste de tuples (item, avg_rating, count_rating)
-        return self.repository.list_with_stats()
+    def list_items(
+        self,
+        category_id: Optional[int] = None,
+        tag_names: Optional[List[str]] = None
+    ) -> List[Tuple[Item, float, int]]:
+        return self.repo.list_with_stats(category_id, tag_names)
+    
 
     def update_item(self, item_id: int, item_data: ItemUpdateDTO) -> Optional[Item]:
         return self.repository.update(item_id, item_data)
