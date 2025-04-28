@@ -27,8 +27,8 @@ class ItemUpdateDTO(BaseModel):
 class ItemResponse(ItemBaseDTO):
     id: int
     image_url: Optional[HttpUrl]  # URL validée
-    avg_rating: float
-    count_rating: int
+    avg_rating: float = 0.0
+    count_rating: int = 0
     categories: List[CategoryDTO]
     tags: list[TagDTO] = []
     created_at: datetime
