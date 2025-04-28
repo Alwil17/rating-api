@@ -16,6 +16,9 @@ class ItemBaseDTO(BaseModel):
 class ItemCreateDTO(BaseModel):
     name: str = Field(..., max_length=200)
     description: Optional[str] = None
+    image_url: Optional[str] = None
+    category_ids: Optional[List[int]] = []  # Existant
+    tags: Optional[List[str]] = []   
 
 class ItemUpdateDTO(BaseModel):
     name: Optional[str] = Field(None, max_length=200)
