@@ -6,6 +6,6 @@ from app.infrastructure.repositories.tag_repository import TagRepository
 
 router = APIRouter(prefix="/tags", tags=["Tags"])
 
-@router.get("/", response_model=list[TagDTO])
+@router.get("", response_model=list[TagDTO])
 def list_tags(db: Session = Depends(get_db)):
     return TagRepository(db).list()

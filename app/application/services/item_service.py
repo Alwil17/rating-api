@@ -22,7 +22,7 @@ class ItemService:
         category_id: Optional[int] = None,
         tag_names: Optional[List[str]] = None
     ) -> List[Tuple[Item, float, int]]:
-        return self.repo.list_with_stats(category_id, tag_names)
+        return self.repository.list_with_stats(category_id, tag_names)
     
 
     def update_item(self, item_id: int, item_data: ItemUpdateDTO) -> Optional[Item]:
@@ -37,4 +37,4 @@ class ItemService:
     
     def set_item_tags(self, item_id: int, tag_names: list[str]):
         item = self.get_item(item_id)[0]
-        return self.repo.set_tags(item, tag_names)
+        return self.repository.set_tags(item, tag_names)
