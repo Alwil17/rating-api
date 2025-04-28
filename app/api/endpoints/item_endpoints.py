@@ -22,9 +22,15 @@ def create_item(item_data: ItemCreateDTO, token: str = Depends(oauth2_scheme), d
 @router.get("/{item_id}", response_model=ItemResponse)
 def get_item(item_id: int, db: Session = Depends(get_db)):
     item, avg, count = ItemService(db).get_item(item_id)
-    return ItemResponse.model_validate(
-        item, avg_rating=avg, count_rating=count
-    )
+    return serialize_item(item, avg, count)
+
+def serialize_item(item, avg, count):
+    return ItemResponse.model_validate({
+        k: v for k, v in vars(item).items() if not k.startswith('_')
+    } | {
+        "avg_rating": avg,
+        "count_rating": count
+    })
 
 @router.get("", response_model=list[ItemResponse])
 def list_items(
@@ -35,14 +41,7 @@ def list_items(
     try:
         items = ItemService(db).list_items(category_id, tags)
         # items: List[Tuple[Item, avg, count]]
-        return [
-            ItemResponse.model_validate(
-                item,
-                avg_rating=avg,
-                count_rating=count
-            )
-            for item, avg, count in items
-        ]
+        return [serialize_item(item, avg, count) for item, avg, count in items]
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400, detail=str(e))

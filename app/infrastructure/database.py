@@ -20,7 +20,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_db():
     if(settings.APP_DEBUG):
-        Base.metadata.drop_all(bind=engine) # only in dev
+        #Base.metadata.drop_all(bind=engine) # only in dev
+        print("DEBUG: flushing db")
     Base.metadata.create_all(bind=engine)
 
 def get_db():

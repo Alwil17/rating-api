@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from app.domain.category import Category
 from app.domain.item import Item
@@ -90,6 +90,8 @@ class ItemRepository:
                 func.count(Rating.id).label("count_rating")
             )
             .outerjoin(Item.ratings)
+            .options(joinedload(Item.categories))
+            .options(joinedload(Item.tags))
         )
 
         # Filtrer par catégorie si demandé

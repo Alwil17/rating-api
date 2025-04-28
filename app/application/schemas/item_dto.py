@@ -10,8 +10,14 @@ from app.application.schemas.tag_dto import TagDTO
 # ------------------------------
 
 class ItemBaseDTO(BaseModel):
+    id: int
     name: str = Field(..., max_length=200)
     description: Optional[str]
+    image_url: Optional[HttpUrl]
+    categories: List[CategoryDTO] = []
+    tags: list[TagDTO] = []
+    created_at: datetime
+    updated_at: datetime
 
 class ItemCreateDTO(BaseModel):
     name: str = Field(..., max_length=200)
@@ -25,14 +31,8 @@ class ItemUpdateDTO(BaseModel):
     description: Optional[str] = None
 
 class ItemResponse(ItemBaseDTO):
-    id: int
-    image_url: Optional[HttpUrl]  # URL validée
     avg_rating: float = 0.0
     count_rating: int = 0
-    categories: List[CategoryDTO]
-    tags: list[TagDTO] = []
-    created_at: datetime
-    updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra='allow')
 
