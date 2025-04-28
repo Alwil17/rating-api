@@ -9,7 +9,19 @@ class ItemService:
         self.repository = ItemRepository(db_session)
 
     def create_item(self, item_data: ItemCreateDTO) -> Item:
-        return self.repository.create(item_data)
+        # Create the item
+        item = self.repository.create(item_data)
+
+        # Check if there are categories
+        if item_data.category_ids:
+            self.repository.set_categories(item, item_data.category_ids)
+
+        # Check for tags
+        if item_data.tags:
+            self.repository.set_tags(item, item_data.tags)
+
+        return item
+
     
     def get_item(self, item_id: int) -> Tuple[Item, float, int]:
         result = self.repository.get_with_stats(item_id)

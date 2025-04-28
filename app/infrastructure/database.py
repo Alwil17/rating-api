@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from app.domain.base import Base  # Importer Base depuis le fichier commun
 import app.domain  # Ceci charge les modules user, item, rating via __init__.py
 from app.config import settings
+from app.infrastructure.seeders.category_seeder import seed_categories
 
 if(settings.APP_DEBUG):
     DATABASE_URL = "sqlite:///./ratings.db"
@@ -10,7 +11,8 @@ else:
     DATABASE_URL = f"{settings.DB_ENGINE}://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 
 engine = create_engine(
-    DATABASE_URL
+    DATABASE_URL, 
+    connect_args={"check_same_thread": False}
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -29,3 +31,11 @@ def get_db():
 
 # Créer les tables au démarrage
 init_db()
+
+if(settings.APP_DEBUG):
+    # Créer une session temporaire pour exécuter le seeder
+    db = SessionLocal()
+    try:
+        seed_categories(db)
+    finally:
+        db.close()

@@ -1,8 +1,8 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship, declarative_base
-from app.domain.item_category import item_category
-from app.domain.item_tag import item_tag
+from .item_category import item_category
+from .item_tag import item_tag
 from app.domain.base import Base
 
 class Item(Base):

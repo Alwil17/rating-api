@@ -13,3 +13,4 @@ def list_categories(db: Session = Depends(get_db)):
 @router.post("", response_model=CategoryDTO, status_code=201)
 def create_category(name: str, db: Session = Depends(get_db)):
     return CategoryService(db).create_category(name)
+

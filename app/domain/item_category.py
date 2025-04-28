@@ -1,5 +1,5 @@
 from sqlalchemy import Table, Column, Integer, ForeignKey
-from app.infrastructure.database import Base
+from app.domain.base import Base
 
 item_category = Table(
     "item_category",

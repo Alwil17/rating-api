@@ -1,5 +1,5 @@
-from sqlalchemy import Table, Column, Integer, ForeignKey
-from app.infrastructure.database import Base
+from sqlalchemy import Column, ForeignKey, Integer, Table
+from app.domain.base import Base
 
 item_tag = Table(
     "item_tag",

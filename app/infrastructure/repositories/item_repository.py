@@ -34,15 +34,43 @@ class ItemRepository:
             .first()
         )
 
-    def set_categories(self, item: Item, category_ids: list[int]):
-        item.categories = self.db.query(Category).filter(Category.id.in_(category_ids)).all()
+    def set_categories(self, item: Item, category_ids: list[int]) -> Item:
+        # List all categories with given IDs
+        categories = (
+            self.db.query(Category)
+            .filter(Category.id.in_(category_ids))
+            .all()
+        )
+
+        if len(categories) != len(category_ids):
+            raise ValueError("Some categories don't exist")
+
+        # Associer les catégories à l'item
+        item.categories = categories
+
         self.db.commit()
         self.db.refresh(item)
         return item
     
-    def set_tags(self, item: Item, tag_names: list[str]):
-        tags = [self.db.query(Tag).filter(Tag.name == name).first() or Tag(name=name) for name in tag_names]
+    def set_tags(self, item: Item, tag_names: list[str]) -> Item:
+        # List to store tags
+        tags = []
+
+        for name in tag_names:
+            # Search for the tag
+            tag = self.db.query(Tag).filter(Tag.name == name).first()
+
+            if not tag:
+                # If tag doesn't exist create it
+                tag = Tag(name=name)
+                self.db.add(tag)
+                self.db.flush()  # flush() to get ID without commit
+
+            tags.append(tag)
+
+        # Associate tags with item
         item.tags = tags
+
         self.db.commit()
         self.db.refresh(item)
         return item

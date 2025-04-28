@@ -1,7 +1,9 @@
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
 class CategoryDTO(BaseModel):
     id: int
     name: str
+    description: Optional[str] = None
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)
