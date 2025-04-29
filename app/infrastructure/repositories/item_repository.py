@@ -29,6 +29,8 @@ class ItemRepository:
                 func.count(Rating.id).label("count_rating")
             )
             .outerjoin(Item.ratings)
+            .options(joinedload(Item.categories))
+            .options(joinedload(Item.tags))
             .filter(Item.id == item_id)
             .group_by(Item.id)
             .first()
