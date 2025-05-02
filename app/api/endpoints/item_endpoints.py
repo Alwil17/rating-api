@@ -4,7 +4,9 @@ from fastapi.params import Query
 from pydantic import conlist
 from sqlalchemy.orm import Session
 from app.application.schemas.item_dto import ItemCreateDTO, ItemUpdateDTO, ItemResponse
+from app.application.schemas.rating_dto import RatingResponse
 from app.application.services.item_service import ItemService
+from app.application.services.rating_service import RatingService
 from app.infrastructure.database import get_db
 from app.api.security import oauth2_scheme, require_role, verify_token
 
@@ -45,6 +47,13 @@ def list_items(
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400, detail=str(e))
+
+# Endpoint pour récupérer tous les ratings d’un item donné
+@router.get("/{item_id}/ratings", response_model=list[RatingResponse])
+def get_ratings_by_item(item_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), role: str = Depends(require_role(["user"]))):
+    verify_token(token)
+    rating_service = RatingService(db)
+    return rating_service.get_ratings_by_item_id(item_id)
 
 
 @router.put("/{item_id}/categories", status_code=204)
