@@ -18,6 +18,9 @@ class RatingService:
 
     def get_rating_by_id(self, rating_id: int) -> Optional[Rating]:
         return self.repository.get_by_id(rating_id)
+    
+    def get_ratings_by_item_id(self, item_id: int) -> list:
+        return self.repository.get_ratings_by_item_id(item_id)
 
     def list_ratings(self) -> List[Rating]:
         return self.repository.list()

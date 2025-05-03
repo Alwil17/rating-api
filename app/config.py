@@ -12,7 +12,7 @@ class Settings:
     APP_DEBUG: bool = os.getenv("APP_DEBUG", "True").lower() in ("true", "1")
 
     # Configuration serveur
-    HOST: str = os.getenv("HOST", "127.0.0.1")
+    HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", 8000))
 
     # Configuration BDD
@@ -24,7 +24,7 @@ class Settings:
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "password")
 
     # Configuration JWT
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
 
     # Configuration OAuth
