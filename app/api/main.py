@@ -5,7 +5,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 # Importer la dépendance de la base de données
-from app.api.endpoints import item_endpoints, rating_endpoints, user_endpoints
+from app.api.endpoints import item_endpoints, rating_endpoints, user_endpoints, category_endpoints, tag_endpoints
 import app.api.auth as auth
 from app.config import settings
 
@@ -24,6 +24,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.include_router(category_endpoints.router)
+app.include_router(tag_endpoints.router)
 app.include_router(rating_endpoints.router)
 app.include_router(user_endpoints.router)
 app.include_router(item_endpoints.router)

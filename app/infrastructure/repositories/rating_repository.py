@@ -18,6 +18,9 @@ class RatingRepository:
     def get_by_id(self, rating_id: int) -> Optional[Rating]:
         return self.db.query(Rating).filter(Rating.id == rating_id).first()
 
+    def get_ratings_by_item_id(self, item_id: int) -> List[Rating]:
+        return self.db.query(Rating).filter(Rating.item_id == item_id).all()
+    
     def list(self) -> List[Rating]:
         return self.db.query(Rating).all()
 
