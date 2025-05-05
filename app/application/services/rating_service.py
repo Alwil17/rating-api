@@ -10,11 +10,13 @@ class RatingService:
     def __init__(self, db_session: Session):
         self.repository = RatingRepository(db_session)
 
-    def create_rating(self, rating_data: RatingCreateDTO) -> Rating:
-        # Ajouter ici la logique métier spécifique, par exemple :
-        # - Vérifier si l'utilisateur et l'item existent
-        # - Vérifier si l'utilisateur a déjà noté cet item
-        return self.repository.create(rating_data)
+    def create_rating(self, dto: RatingCreateDTO) -> Rating:
+        # 1) check duplicate
+        existing = self.repository.get_by_user_and_item(dto.user_id, dto.item_id)
+        if existing:
+            raise ValueError("You have already rated this item.")
+        # 2) create new
+        return self.repository.create(dto)
 
     def get_rating_by_id(self, rating_id: int) -> Optional[Rating]:
         return self.repository.get_by_id(rating_id)
