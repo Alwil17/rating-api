@@ -16,6 +16,12 @@ def create_rating(rating_dto: RatingCreateDTO, db: Session = Depends(get_db), to
     try:
         rating = rating_service.create_rating(rating_dto)
     except ValueError as e:
+        # duplicate → 409 Conflict
+        if "already rated" in str(e):
+            raise HTTPException(
+                status_code=409,
+                detail=str(e)
+            )
         raise HTTPException(status_code=400, detail=str(e))
     return rating
 
