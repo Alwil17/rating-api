@@ -10,6 +10,12 @@ class RatingService:
     def __init__(self, db_session: Session):
         self.repository = RatingRepository(db_session)
 
+    def get_user_rating_for_item(self, user_id: int, item_id: int) -> Rating:
+        rating = self.repository.get_by_user_and_item(user_id, item_id)
+        if not rating:
+            raise ValueError("Rating not found")
+        return rating
+    
     def create_rating(self, dto: RatingCreateDTO) -> Rating:
         # 1) check duplicate
         existing = self.repository.get_by_user_and_item(dto.user_id, dto.item_id)
