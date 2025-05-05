@@ -7,6 +7,14 @@ class RatingRepository:
     def __init__(self, db: Session):
         self.db = db
 
+    def get_by_user_and_item(self, user_id: int, item_id: int) -> Rating | None:
+        return (
+            self.db.query(Rating)
+               .filter(Rating.user_id == user_id,
+                       Rating.item_id == item_id)
+               .first()
+        )
+    
     def create(self, rating_data: RatingCreateDTO) -> Rating:
         # Crée une instance Rating à partir du DTO
         rating = Rating(**rating_data.dict())
