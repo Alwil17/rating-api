@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from app.api.auth import get_current_user
 from app.application.schemas.rating_dto import RatingCreateDTO, RatingUpdateDTO, RatingResponse
+from app.application.schemas.user_dto import UserResponse
 from app.application.services.rating_service import RatingService
 from app.infrastructure.database import get_db
 from app.api.security import oauth2_scheme, require_role, verify_token
@@ -8,6 +10,20 @@ from app.api.security import oauth2_scheme, require_role, verify_token
 router = APIRouter(prefix="/ratings", tags=["Ratings"])
 
 
+@router.get("/{item_id}/my-rating", response_model=RatingResponse)
+def get_my_rating_for_item(
+    item_id: int,
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme),
+    current_user: UserResponse = Depends(get_current_user)
+):
+    service = RatingService(db)
+    try:
+        rating = service.get_user_rating_for_item(current_user.id, item_id)
+        return rating
+    except ValueError:
+        raise HTTPException(status_code=404, detail="No rating found for this item")
+    
 # Endpoint pour créer un nouveau rating
 @router.post("", response_model=RatingResponse, status_code=201)
 def create_rating(rating_dto: RatingCreateDTO, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), role: str = Depends(require_role(["user"]))):
