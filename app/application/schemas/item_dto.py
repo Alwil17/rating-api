@@ -13,7 +13,7 @@ class ItemBaseDTO(BaseModel):
     id: int
     name: str = Field(..., max_length=200)
     description: Optional[str]
-    image_url: Optional[HttpUrl]
+    image_url: Optional[str]
     categories: List[CategoryDTO] = []
     tags: list[TagDTO] = []
     created_at: datetime
@@ -28,6 +28,7 @@ class ItemCreateDTO(BaseModel):
 
 class ItemUpdateDTO(BaseModel):
     name: Optional[str] = Field(None, max_length=200)
+    image_url: Optional[str]
     description: Optional[str] = None
 
 class ItemResponse(ItemBaseDTO):
