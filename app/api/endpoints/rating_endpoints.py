@@ -70,8 +70,13 @@ def update_rating(rating_id: int, rating_dto: RatingUpdateDTO, db: Session = Dep
 
 # Endpoint pour supprimer un rating
 @router.delete("/{rating_id}", status_code=204)
-def delete_rating(rating_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), role: str = Depends(require_role(["user"]))):
+def delete_rating(rating_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: UserResponse = Depends(get_current_user)):
     verify_token(token)
+    # Check if user own a rating
+    rating = get_rating(rating_id=rating_id, db=db, token=token)
+    if(current_user.id != rating.user_id):
+        raise HTTPException(status_code=409, detail="This user is not the owner of specified rating")
+    # Now proceed to deletion
     rating_service = RatingService(db)
     success = rating_service.delete_rating(rating_id)
     if not success:
