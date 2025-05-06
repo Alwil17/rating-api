@@ -17,6 +17,7 @@ def get_my_rating_for_item(
     token: str = Depends(oauth2_scheme),
     current_user: UserResponse = Depends(get_current_user)
 ):
+    verify_token(token)
     service = RatingService(db)
     try:
         rating = service.get_user_rating_for_item(current_user.id, item_id)
@@ -57,6 +58,13 @@ def list_ratings(db: Session = Depends(get_db), token: str = Depends(oauth2_sche
     verify_token(token)
     rating_service = RatingService(db)
     return rating_service.list_ratings()
+
+# Endpoint pour lister tous les ratings d'un user
+@router.get("/my-reviews", response_model=list[RatingResponse])
+def list_user_ratings(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: UserResponse = Depends(get_current_user)):
+    verify_token(token)
+    rating_service = RatingService(db)
+    return rating_service.list_user_ratings()
 
 # Endpoint pour mettre à jour un rating existant
 @router.put("/{rating_id}", response_model=RatingResponse)
