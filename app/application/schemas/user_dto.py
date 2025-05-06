@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 from typing import Optional
 from datetime import datetime
 
@@ -6,16 +6,19 @@ class UserCreateDTO(BaseModel):
     name: str = Field(..., max_length=100)
     email: EmailStr
     password: str
+    image_url: Optional[str] = None
 
 class UserUpdateDTO(BaseModel):
     name: Optional[str] = Field(None, max_length=100)
     email: Optional[EmailStr] = None
-    password: Optional[str] = None  # Optionnel en cas de changement de mot de passe
+    password: Optional[str]
+    image_url: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
+    image_url: Optional[str]
     created_at: datetime
     updated_at: datetime
 
