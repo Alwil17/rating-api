@@ -33,7 +33,7 @@ class RatingService:
     def list_ratings(self) -> List[Rating]:
         return self.repository.list()
     
-    def list_user_ratings(self, user_id: int) -> List[Rating]:
+    def list_user_ratings(self, user_id: int) -> list:
         return self.repository.get_ratings_by_user_id(user_id)
 
     def update_rating(self, rating_id: int, rating_data: RatingUpdateDTO) -> Optional[Rating]:

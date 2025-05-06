@@ -59,13 +59,6 @@ def list_ratings(db: Session = Depends(get_db), token: str = Depends(oauth2_sche
     rating_service = RatingService(db)
     return rating_service.list_ratings()
 
-# Endpoint pour lister tous les ratings d'un user
-@router.get("/my-reviews", response_model=list[RatingResponse])
-def list_user_ratings(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: UserResponse = Depends(get_current_user)):
-    verify_token(token)
-    rating_service = RatingService(db)
-    return rating_service.list_user_ratings()
-
 # Endpoint pour mettre à jour un rating existant
 @router.put("/{rating_id}", response_model=RatingResponse)
 def update_rating(rating_id: int, rating_dto: RatingUpdateDTO, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), role: str = Depends(require_role(["user"]))):
