@@ -12,7 +12,11 @@ class ItemRepository:
         self.db = db
 
     def create(self, item_data: ItemCreateDTO) -> Item:
-        item = Item(**item_data.dict())
+        # Exclure les champs non pertinents pour le modèle Item
+        item_dict = item_data.dict(exclude={"category_ids", "tags"})
+
+        # Créer l'objet Item
+        item = Item(**item_dict)
         self.db.add(item)
         self.db.commit()
         self.db.refresh(item)
