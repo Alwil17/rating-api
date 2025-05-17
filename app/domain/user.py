@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship, declarative_base
 from app.domain.base import Base
@@ -12,8 +12,8 @@ class User(Base):
     hashed_password = Column(String(128), nullable=False)  # stocke le mot de passe haché
     role = Column(String(50), default="user")
     image_url = Column(String(500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     
     # Relation vers les ratings
     ratings = relationship("Rating", back_populates="user", cascade="all, delete-orphan")

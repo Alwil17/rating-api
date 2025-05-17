@@ -1,6 +1,6 @@
-from datetime import datetime
-from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Text
-from sqlalchemy.orm import relationship, declarative_base
+from datetime import datetime, timezone
+from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy.orm import relationship
 from .item_category import item_category
 from .item_tag import item_tag
 from app.domain.base import Base
@@ -12,8 +12,8 @@ class Item(Base):
     name = Column(String(200), nullable=False)
     description = Column(Text, nullable=True)
     image_url = Column(String(500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     
     # Relation vers les categories
     categories = relationship("Category",back_populates="items", secondary=item_category)

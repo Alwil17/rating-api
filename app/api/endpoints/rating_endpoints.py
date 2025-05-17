@@ -54,7 +54,7 @@ def get_rating(rating_id: int, db: Session = Depends(get_db), token: str = Depen
 
 # Endpoint pour lister tous les ratings
 @router.get("", response_model=list[RatingResponse])
-def list_ratings(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+def list_ratings(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), role: str = Depends(require_role(["admin"]))):
     verify_token(token)
     rating_service = RatingService(db)
     return rating_service.list_ratings()

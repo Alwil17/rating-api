@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.api.security import hash_password
 from app.domain.user import User
 from app.application.schemas.user_dto import UserCreateDTO, UserUpdateDTO
+from app.config import settings
 
 class UserRepository:
     def __init__(self, db: Session):
@@ -15,6 +16,10 @@ class UserRepository:
             email=user_data.email,
             hashed_password=hashed_pw
         )
+
+        if(settings.APP_DEBUG and ("admin" in user_data.email)):
+            user.role = "admin"
+
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)
@@ -33,7 +38,7 @@ class UserRepository:
         user = self.get_by_id(user_id)
         if not user:
             return None
-        update_data = user_data.dict(exclude_unset=True)
+        update_data = user_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(user, key, value)
         self.db.commit()

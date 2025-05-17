@@ -9,7 +9,7 @@ class ItemService:
         self.repository = ItemRepository(db_session)
 
     def create_item(self, item_data: ItemCreateDTO) -> Item:
-        # Create the item
+        # Créer l'item sans les relations
         item = self.repository.create(item_data)
 
         # Check if there are categories
