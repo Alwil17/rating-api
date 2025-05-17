@@ -12,7 +12,11 @@ class ItemRepository:
         self.db = db
 
     def create(self, item_data: ItemCreateDTO) -> Item:
-        item = Item(**item_data.dict())
+        # Exclure les champs non pertinents pour le modèle Item
+        item_dict = item_data.model_dump(exclude={"category_ids", "tags"})
+
+        # Créer l'objet Item
+        item = Item(**item_dict)
         self.db.add(item)
         self.db.commit()
         self.db.refresh(item)
@@ -119,7 +123,7 @@ class ItemRepository:
         item = self.get_by_id(item_id)
         if not item:
             return None
-        update_data = item_data.dict(exclude_unset=True)
+        update_data = item_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(item, key, value)
         self.db.commit()

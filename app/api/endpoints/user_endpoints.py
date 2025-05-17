@@ -1,11 +1,15 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api.auth import get_current_user
 from app.api.security import require_role
+from app.application.schemas.item_dto import ItemResponse
 from app.application.schemas.rating_dto import RatingResponse
 from app.application.schemas.user_dto import UserCreateDTO, UserUpdateDTO, UserResponse
 from app.application.services.rating_service import RatingService
 from app.application.services.user_service import UserService
+from app.domain.item import Item
+from app.domain.rating import Rating
 from app.infrastructure.database import get_db
 from app.api.security import oauth2_scheme, require_role, verify_token
 
@@ -37,12 +41,29 @@ def list_users(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme
 
 # Endpoint pour lister tous les ratings d'un user
 @router.get("/{user_id}/ratings", response_model=list[RatingResponse])
-def list_user_ratings(user_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: UserResponse = Depends(get_current_user)):
-    verify_token(token)
+def list_user_ratings(user_id: int, db: Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
     if(user_id != current_user.id):
         raise HTTPException(status_code=404, detail="User don't match")
     rating_service = RatingService(db)
     return rating_service.list_user_ratings(current_user.id)
+
+@router.get("/{user_id}/recommandations", response_model=List[ItemResponse])
+def get_recommandations(user_id: int, db: Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
+    if(user_id != current_user.id):
+        raise HTTPException(status_code=404, detail="User don't match")
+    # Récupère les IDs des items déjà notés
+    rated_item_ids = db.query(Rating.item_id).filter(Rating.user_id == user_id).subquery()
+
+    # Sélectionne d'autres items (ex : les plus populaires ou récents)
+    recommended_items = (
+        db.query(Item)
+        .filter(~Item.id.in_(rated_item_ids))
+        .order_by(Item.created_at.desc())  # ou Item.popularity.desc() si dispo
+        .limit(10)
+        .all()
+    )
+
+    return recommended_items
 
 @router.put("/{user_id}", response_model=UserResponse)
 def update_user(user_id: int, user_data: UserUpdateDTO, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
