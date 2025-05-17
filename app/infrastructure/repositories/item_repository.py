@@ -123,7 +123,7 @@ class ItemRepository:
         item = self.get_by_id(item_id)
         if not item:
             return None
-        update_data = item_data.dict(exclude_unset=True)
+        update_data = item_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(item, key, value)
         self.db.commit()

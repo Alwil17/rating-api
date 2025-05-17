@@ -38,7 +38,7 @@ class UserRepository:
         user = self.get_by_id(user_id)
         if not user:
             return None
-        update_data = user_data.dict(exclude_unset=True)
+        update_data = user_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(user, key, value)
         self.db.commit()

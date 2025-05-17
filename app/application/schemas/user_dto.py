@@ -11,7 +11,7 @@ class UserCreateDTO(BaseModel):
 class UserUpdateDTO(BaseModel):
     name: Optional[str] = Field(None, max_length=100)
     email: Optional[EmailStr] = None
-    password: Optional[str]
+    password: Optional[str] = None
     image_url: Optional[str] = None
 
 class UserResponse(BaseModel):

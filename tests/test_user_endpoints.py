@@ -103,6 +103,7 @@ def test_update_user(user_auth_headers):
         "email": "updateduser@example.com"
     }
     response = client.put("/users/1", json=update_payload, headers=user_auth_headers)  # Assuming user ID 1
+    print(response.status_code)
     assert response.status_code == 200, response.text
     updated_user = response.json()
     assert updated_user["name"] == update_payload["name"]
