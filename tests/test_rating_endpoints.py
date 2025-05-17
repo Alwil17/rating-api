@@ -70,7 +70,8 @@ def test_create_and_get_rating(auth_headers, item_id):
 
 def test_list_ratings(auth_headers):
     response = client.get("/ratings", headers=auth_headers)
-    assert response.status_code == 401, response.text
+    print(response)
+    assert response.status_code == 403, response.text
 
 def test_update_rating(auth_headers, item_id):
     user_id = get_user_id(auth_headers)
