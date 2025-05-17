@@ -12,8 +12,8 @@ class User(Base):
     hashed_password = Column(String(128), nullable=False)  # stocke le mot de passe haché
     role = Column(String(50), default="user")
     image_url = Column(String(500), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(datetime.timezone.utc))
+    updated_at = Column(DateTime, default=datetime.now(datetime.timezone.utc), onupdate=datetime.now(datetime.timezone.utc))
     
     # Relation vers les ratings
     ratings = relationship("Rating", back_populates="user", cascade="all, delete-orphan")
