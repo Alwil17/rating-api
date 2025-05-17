@@ -17,7 +17,7 @@ class RatingRepository:
     
     def create(self, rating_data: RatingCreateDTO) -> Rating:
         # Crée une instance Rating à partir du DTO
-        rating = Rating(**rating_data.dict())
+        rating = Rating(**rating_data.model_dump())
         self.db.add(rating)
         self.db.commit()
         self.db.refresh(rating)
@@ -39,7 +39,7 @@ class RatingRepository:
         rating = self.get_by_id(rating_id)
         if not rating:
             return None
-        update_data = rating_data.dict(exclude_unset=True)
+        update_data = rating_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(rating, key, value)
         self.db.commit()
