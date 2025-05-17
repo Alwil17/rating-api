@@ -65,7 +65,6 @@ jobs:
     name: Docker Build & Push
     needs: security
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/devmain'
 
     steps:
       - name: Checkout code
