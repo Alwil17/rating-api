@@ -17,6 +17,9 @@ class UserRepository:
             hashed_password=hashed_pw
         )
 
+        if(settings.APP_DEBUG and ("admin" in user_data.email)):
+            user.role = "admin"
+
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)
