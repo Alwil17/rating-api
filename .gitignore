@@ -184,3 +184,7 @@ cython_debug/
 app/api/__pycache__/main.cpython-312.pyc
 app/application/schemas/__pycache__/user_dto.cpython-312.pyc
 app/infrastructure/__pycache__/database.cpython-312.pyc
+
+.vscode/
+.vscode/*
+
