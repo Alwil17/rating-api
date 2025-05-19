@@ -114,3 +114,12 @@ def test_delete_user(admin_auth_headers):
     # Test deleting a user (admin-only)
     response = client.delete("/users/1", headers=admin_auth_headers)  # Assuming user ID 1
     assert response.status_code == 204, response.text
+
+def test_delete_user_self(user_auth_headers):
+    # The user deletes their own account via /auth/remove
+    response = client.delete("/auth/remove", headers=user_auth_headers)
+    assert response.status_code == 204, response.text
+
+    # After deletion, any authenticated request should fail (token is now invalid)
+    response = client.get("/users/me", headers=user_auth_headers)
+    assert response.status_code in (401, 404, 422)
