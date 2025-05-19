@@ -82,3 +82,13 @@ def register_user(user_data: UserCreateDTO, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 async def read_current_user(current_user: UserResponse = Depends(get_current_user)):
     return current_user
+
+# -- 5) Endpoint pour supprimer un user --
+@router.delete("/remove", status_code=204)
+async def remove_current_user(
+    db: Session = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user)
+):
+    user_service = UserService(db)
+    user_service.delete_user(current_user.id)
+    return None
