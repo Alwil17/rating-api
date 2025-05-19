@@ -8,3 +8,7 @@ __pycache__/
 .git
 .gitignore
 resources/
+venv/
+.venv/
+.idea/
+.vscode/
