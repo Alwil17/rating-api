@@ -1,6 +1,7 @@
 fastapi==0.115.12
 uvicorn==0.34.0
-SQLAlchemy==2.0.40
+SQLAlchemy
+psycopg2
 alembic==1.15.2
 pydantic==2.11.1
 pydantic[email]
@@ -13,4 +14,3 @@ python-multipart
 prometheus-fastapi-instrumentator
 sentry-sdk[fastapi]
 python-dotenv
-psycopg2

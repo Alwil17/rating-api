@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import sessionmaker
 from app.domain.base import Base  # Importer Base depuis le fichier commun
 import app.domain  # Ceci charge les modules user, item, rating via __init__.py
@@ -8,13 +8,28 @@ from app.infrastructure.seeders.item_seeder import seed_items
 
 if(settings.APP_DEBUG):
     DATABASE_URL = "sqlite:///./ratings.db"
+    engine = create_engine(
+        DATABASE_URL, 
+        connect_args={"check_same_thread": False}
+    )
 else: 
-    DATABASE_URL = f"{settings.DB_ENGINE}://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+    if(settings.DB_ENGINE == "postgresql"):
+        url = URL.create(
+            drivername="postgresql",
+            username=settings.DB_USER,
+            password=settings.DB_PASSWORD,
+            host=settings.DB_HOST,
+            database=settings.DB_NAME
+        )
 
-engine = create_engine(
-    DATABASE_URL, 
-    connect_args={"check_same_thread": False}
-)
+        engine = create_engine(url) 
+    else:
+        DATABASE_URL = f"{settings.DB_ENGINE}://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+        engine = create_engine(
+            DATABASE_URL, 
+            connect_args={"check_same_thread": False}
+        )
+
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
