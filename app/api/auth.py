@@ -86,8 +86,8 @@ async def read_current_user(current_user: UserResponse = Depends(get_current_use
 # -- 5) Endpoint pour supprimer un user --
 @router.delete("/remove", status_code=204)
 async def remove_current_user(
-    current_user: UserResponse = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user)
 ):
     user_service = UserService(db)
     user_service.delete_user(current_user.id)
