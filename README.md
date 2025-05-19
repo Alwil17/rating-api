@@ -6,6 +6,10 @@ Ce projet est une API REST développée avec **FastAPI** permettant la gestion d
 
 ## 📂 Structure du projet
 ```
+.github/
+│   └── workflows/
+│       └── python-app.yml      # CI/CD workflow GitHub Actions
+
 app/
 ├── api/                 # Routeurs FastAPI et logique d'authentification
 │   ├── endpoints/       # Endpoints REST (users, items, ratings, categories, tags)
@@ -24,16 +28,29 @@ app/
 │   ├── repositories/    # Accès aux données (repositories)
 │   └── seeders/         # Scripts de seed pour les catégories/items
 │
-📁 resources/           # Contient les diagrammes UML
+resources/           # Contient les diagrammes UML
 │   ├── schema.puml         # Schéma de la base de données (PlantUML)
 │   ├── schema.png          # Version image du schéma de la BD
 │   ├── sequence.puml       # Diagramme de séquence (PlantUML)
 │   ├── sequence.png        # Version image du diagramme de séquence
 │
-├── requirements.txt        # Dépendances du projet
-├── README.md               # Documentation du projet
-```
+tests/                          # Tests unitaires et d'intégration
+│   └── ...
 
+requirements.txt        # Dépendances du projet
+README.md               # Documentation du projet
+.dockerignore                   # Fichiers à ignorer par Docker
+.env                            # Variables d'environnement (à ne pas versionner)
+.env.example                    # Exemple de configuration d'environnement
+.gitignore                      # Fichiers à ignorer par Git
+.safety-project.ini             # Configuration de l'outil Safety
+bandit.yaml                     # Configuration de l'outil Bandit
+CODE_OF_CONDUCT.md              # Code de conduite des contributeurs
+CONTRIBUTING.md                 # Guide de contribution
+Dockerfile                      # Image Docker de l'application
+ratings.db                      # Base SQLite locale (pour dev/test)
+
+```
 ---
 
 ## 🛠️ Installation et Exécution
