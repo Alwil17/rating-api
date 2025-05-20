@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from app.application.schemas.user_dto import UserCreateDTO, UserResponse
+from app.application.schemas.user_dto import UserCreateDTO, UserResponse, UserUpdateDTO
 from app.application.services.user_service import UserService
 from app.infrastructure.database import get_db
 from sqlalchemy.orm import Session
@@ -82,6 +82,18 @@ def register_user(user_data: UserCreateDTO, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 async def read_current_user(current_user: UserResponse = Depends(get_current_user)):
     return current_user
+
+@router.put("/edit", response_model=UserResponse)
+async def edit_current_user(
+    update_data: UserUpdateDTO,
+    db: Session = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user)
+):
+    user_service = UserService(db)
+    updated_user = user_service.update_user(current_user.id, update_data)
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return updated_user
 
 # -- 5) Endpoint pour supprimer un user --
 @router.delete("/remove", status_code=204)
