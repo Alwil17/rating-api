@@ -1,4 +1,4 @@
-from sqlalchemy import URL, create_engine
+from sqlalchemy import URL, create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 from app.domain.base import Base  # Importer Base depuis le fichier commun
 import app.domain  # Ceci charge les modules user, item, rating via __init__.py
@@ -32,6 +32,14 @@ else:
 
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def drop_all_except_users(engine):
+    inspector = inspect(engine)
+    tables = inspector.get_table_names()
+    tables_to_drop = [t for t in tables if t != "users"]
+    if tables_to_drop:
+        Base.metadata.drop_all(bind=engine, tables=[Base.metadata.tables[t] for t in tables_to_drop])
+
 
 def init_db():
     if(settings.APP_DEBUG):
