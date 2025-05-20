@@ -39,6 +39,9 @@ class UserRepository:
         if not user:
             return None
         update_data = user_data.model_dump(exclude_unset=True)
+        # Hash the password if present
+        if "password" in update_data and update_data["password"]:
+            update_data["hashed_password"] = hash_password(update_data.pop("password"))
         for key, value in update_data.items():
             setattr(user, key, value)
         self.db.commit()

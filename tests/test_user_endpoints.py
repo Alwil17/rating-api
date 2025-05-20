@@ -102,12 +102,11 @@ def test_update_user(user_auth_headers):
         "name": "Updated User",
         "email": "updateduser@example.com"
     }
-    response = client.put("/users/1", json=update_payload, headers=user_auth_headers)  # Assuming user ID 1
-    print(response.status_code)
+    response = client.put("/auth/edit", json=update_payload, headers=user_auth_headers)  # Assuming user ID 1
     assert response.status_code == 200, response.text
     updated_user = response.json()
     assert updated_user["name"] == update_payload["name"]
-    assert updated_user["email"] == update_payload["email"]
+    assert updated_user["email"] == update_payload["email"] 
 
 
 def test_delete_user(admin_auth_headers):
