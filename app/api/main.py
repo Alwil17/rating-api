@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import sentry_sdk
 import uvicorn
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -35,7 +36,14 @@ if(settings.PROMETHEUS_ENABLED):
     # Instrumentation pour Prometheus
     Instrumentator().instrument(app).expose(app)
 
-
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(SentryAsgiMiddleware)
 
 # Lancer l'application si le fichier est exécuté directement
