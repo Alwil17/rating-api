@@ -18,6 +18,7 @@ class UserResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
+    role: Optional[str]
     image_url: Optional[str]
     created_at: datetime
     updated_at: datetime
