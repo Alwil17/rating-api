@@ -42,7 +42,7 @@ def list_users(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme
 # Endpoint pour lister tous les ratings d'un user
 @router.get("/{user_id}/ratings", response_model=list[RatingResponse])
 def list_user_ratings(user_id: int, db: Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
-    if(user_id != current_user.id):
+    if(user_id != current_user.id and current_user.role != "admin"):
         raise HTTPException(status_code=404, detail="User don't match")
     rating_service = RatingService(db)
     return rating_service.list_user_ratings(current_user.id)
