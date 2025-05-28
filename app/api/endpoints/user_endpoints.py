@@ -45,7 +45,7 @@ def list_user_ratings(user_id: int, db: Session = Depends(get_db), current_user:
     if(user_id != current_user.id and current_user.role != "admin"):
         raise HTTPException(status_code=404, detail="User don't match")
     rating_service = RatingService(db)
-    return rating_service.list_user_ratings(current_user.id)
+    return rating_service.list_user_ratings(user_id)
 
 @router.get("/{user_id}/recommandations", response_model=List[ItemResponse])
 def get_recommandations(user_id: int, db: Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
