@@ -1,40 +1,44 @@
-import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Charger les variables d'environnement depuis le fichier .env
-load_dotenv()
 
-class Settings:
-    APP_NAME: str = os.getenv("APP_NAME", "RatingAPI")
-    APP_VERSION: str = os.getenv("APP_VERSION", "1.0.0")
-    APP_ENV: str = os.getenv("APP_ENV", "development")
-    APP_SECRET_KEY: str = os.getenv("APP_SECRET_KEY", "super_secret_key")
-    APP_DEBUG: bool = os.getenv("APP_DEBUG", "True").lower() in ("true", "1")
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8"
+    )
 
-    # Configuration serveur
-    HOST: str = os.getenv("HOST", "0.0.0.0")
-    PORT: int = int(os.getenv("PORT", 8000))
+    # Application
+    APP_NAME: str = "RatingAPI"
+    APP_VERSION: str = "1.0.0"
+    APP_ENV: str = "development"
+    APP_SECRET_KEY: str = "super_secret_key"
+    APP_DEBUG: bool = True
 
-    # Configuration BDD
-    DB_ENGINE: str = os.getenv("DB_ENGINE", "sqlite")
-    DB_HOST: str = os.getenv("DB_HOST", "localhost")
-    DB_PORT: int = int(os.getenv("DB_PORT", 5432))
-    DB_NAME: str = os.getenv("DB_NAME", "ratings")
-    DB_USER: str = os.getenv("DB_USER", "user")
-    DB_PASSWORD: str = os.getenv("DB_PASSWORD", "password")
+    # Server
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
 
-    # Configuration JWT
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))
-    JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+    # Database
+    DB_ENGINE: str = "sqlite"
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 5432
+    DB_NAME: str = "ratings"
+    DB_USER: str = "user"
+    DB_PASSWORD: str = "password"
 
-    # Configuration OAuth
-    OAUTH_CLIENT_ID: str = os.getenv("OAUTH_CLIENT_ID", "")
-    OAUTH_CLIENT_SECRET: str = os.getenv("OAUTH_CLIENT_SECRET", "")
+    # JWT
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    JWT_ALGORITHM: str = "HS256"
 
-    # Configuration Sentry
-    SENTRY_DSN: str = os.getenv("SENTRY_DSN", "")
+    # OAuth
+    OAUTH_CLIENT_ID: str = ""
+    OAUTH_CLIENT_SECRET: str = ""
 
-    # Configuration Prometheus
-    PROMETHEUS_ENABLED: bool = os.getenv("PROMETHEUS_ENABLED", "True").lower() in ("true", "1")
+    # Sentry
+    SENTRY_DSN: str = ""
+
+    # Prometheus
+    PROMETHEUS_ENABLED: bool = True
+
 
 settings = Settings()
