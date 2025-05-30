@@ -12,7 +12,7 @@ class UserCreateDTO(BaseModel):
 class UserUpdateDTO(BaseModel):
     name: Optional[str] = Field(None, max_length=100)
     email: Optional[EmailStr] = None
-    role: Optional[str]
+    role: Optional[str] = None
     password: Optional[str] = None
     image_url: Optional[str] = None
 
