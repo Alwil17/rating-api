@@ -66,8 +66,7 @@ def get_recommandations(user_id: int, db: Session = Depends(get_db), current_use
     return recommended_items
 
 @router.put("/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, user_data: UserUpdateDTO, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), role: str = Depends(require_role(["admin"]))):
-    verify_token(token)
+def update_user(user_id: int, user_data: UserUpdateDTO, db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
     user_service = UserService(db)
     updated_user = user_service.update_user(user_id, user_data)
     if not updated_user:

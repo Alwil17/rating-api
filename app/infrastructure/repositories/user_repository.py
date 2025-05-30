@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.api.security import hash_password
@@ -44,6 +45,8 @@ class UserRepository:
             update_data["hashed_password"] = hash_password(update_data.pop("password"))
         for key, value in update_data.items():
             setattr(user, key, value)
+        
+        user.updated_at = datetime.now()
         self.db.commit()
         self.db.refresh(user)
         return user
