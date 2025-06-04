@@ -7,8 +7,8 @@ class CategoryService:
     def list_categories(self):
         return self.repo.list()
 
-    def create_category(self, name: str):
-        return self.repo.create(name)
+    def create_category(self, name: str, description: str = None):
+        return self.repo.create(name, description)
     
     # Get a specific category by ID
     def get_category(self, category_id: int):
