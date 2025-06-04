@@ -17,3 +17,20 @@ class CategoryRepository:
         self.db.commit()
         self.db.refresh(cat)
         return cat
+        
+    def update(self, id: int, update_data: dict):
+        category = self.get(id)
+        if category:
+            for key, value in update_data.items():
+                setattr(category, key, value)
+            self.db.commit()
+            self.db.refresh(category)
+        return category
+        
+    def delete(self, id: int):
+        category = self.get(id)
+        if category:
+            self.db.delete(category)
+            self.db.commit()
+            return True
+        return False
