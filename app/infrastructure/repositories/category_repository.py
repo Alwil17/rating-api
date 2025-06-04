@@ -11,8 +11,8 @@ class CategoryRepository:
     def get(self, id: int):
         return self.db.query(Category).filter(Category.id == id).first()
 
-    def create(self, name: str):
-        cat = Category(name=name)
+    def create(self, name: str, description: str = None):
+        cat = Category(name=name, description=description)
         self.db.add(cat)
         self.db.commit()
         self.db.refresh(cat)
