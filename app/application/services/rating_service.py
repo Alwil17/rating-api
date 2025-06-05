@@ -58,6 +58,6 @@ class RatingService:
             
         # Remove the comment but keep the score
         rating.comment = None
-        self.repository.update(rating)
+        self.repository.update(rating_id, rating)
         
         return rating
