@@ -1,7 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
-class TagDTO(BaseModel):
-    id: int
-    name: str
+class TagBaseDTO(BaseModel):
+    name: str = Field(..., example="Technology")
 
-    model_config = {"from_attributes": True}
+class TagDTO(TagBaseDTO):
+    id: int = Field(..., example=1)
+
+    model_config = ConfigDict(from_attributes=True, extra='allow')
+
+class TagCreateDTO(TagBaseDTO):
+    pass
+
+class TagUpdateDTO(TagBaseDTO):
+    pass

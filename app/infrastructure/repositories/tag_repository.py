@@ -5,8 +5,11 @@ class TagRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_by_name(self, name: str):
-        return self.db.query(Tag).filter(Tag.name == name).first()
+    def list(self):
+        return self.db.query(Tag).all()
+
+    def get(self, tag_id: int):
+        return self.db.query(Tag).filter(Tag.id == tag_id).first()
 
     def create(self, name: str):
         tag = Tag(name=name)
@@ -15,11 +18,16 @@ class TagRepository:
         self.db.refresh(tag)
         return tag
 
-    def get_or_create(self, name: str):
-        tag = self.get_by_name(name)
+    def update(self, tag_id: int, name: str):
+        tag = self.get(tag_id)
         if tag:
-            return tag
-        return self.create(name)
+            tag.name = name
+            self.db.commit()
+            self.db.refresh(tag)
+        return tag
 
-    def list(self):
-        return self.db.query(Tag).all()
+    def delete(self, tag_id: int):
+        tag = self.get(tag_id)
+        if tag:
+            self.db.delete(tag)
+            self.db.commit()
