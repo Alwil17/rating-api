@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 class TagBaseDTO(BaseModel):
     name: str = Field(..., example="Technology")
@@ -6,8 +6,7 @@ class TagBaseDTO(BaseModel):
 class TagDTO(TagBaseDTO):
     id: int = Field(..., example=1)
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True, extra='allow')
 
 class TagCreateDTO(TagBaseDTO):
     pass
