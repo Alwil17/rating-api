@@ -1,7 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-class TagDTO(BaseModel):
-    id: int
-    name: str
+class TagBaseDTO(BaseModel):
+    name: str = Field(..., example="Technology")
 
-    model_config = {"from_attributes": True}
+class TagDTO(TagBaseDTO):
+    id: int = Field(..., example=1)
+
+    class Config:
+        orm_mode = True
+
+class TagCreateDTO(TagBaseDTO):
+    pass
+
+class TagUpdateDTO(TagBaseDTO):
+    pass
