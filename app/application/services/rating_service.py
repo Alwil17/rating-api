@@ -56,8 +56,10 @@ class RatingService:
         if not rating:
             return None
             
-        # Remove the comment but keep the score
-        rating.comment = None
-        self.repository.update(rating_id, rating)
+        # Créer un DTO de mise à jour avec seulement le commentaire à null
+        update_dto = RatingUpdateDTO(value=rating.value, comment=None)
         
-        return rating
+        # Mettre à jour le rating
+        updated_rating = self.repository.update(rating_id, update_dto)
+        
+        return updated_rating
