@@ -69,6 +69,15 @@ def update_rating(rating_id: int, rating_dto: RatingUpdateDTO, db: Session = Dep
         raise HTTPException(status_code=404, detail="Rating not found")
     return rating
 
+# Endpoint pour supprimer le commentaire d'un rating
+@router.delete("/{rating_id}/comment", status_code=200, response_model=RatingResponse)
+def remove_rating_comment(rating_id: int, db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
+    rating_service = RatingService(db)
+    rating = rating_service.remove_comment(rating_id)
+    if not rating:
+        raise HTTPException(status_code=404, detail="Rating not found")
+    return rating
+
 # Endpoint pour supprimer un rating
 @router.delete("/{rating_id}", status_code=204)
 def delete_rating(rating_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: UserResponse = Depends(get_current_user)):
