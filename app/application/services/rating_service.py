@@ -41,3 +41,23 @@ class RatingService:
 
     def delete_rating(self, rating_id: int) -> bool:
         return self.repository.delete(rating_id)
+
+    def remove_comment(self, rating_id: int):
+        """
+        Remove the comment from a rating without affecting the score
+        
+        Args:
+            rating_id: ID of the rating to modify
+            
+        Returns:
+            The updated rating or None if not found
+        """
+        rating = self.repository.get_by_id(rating_id)
+        if not rating:
+            return None
+            
+        # Remove the comment but keep the score
+        rating.comment = None
+        self.repository.update(rating)
+        
+        return rating
