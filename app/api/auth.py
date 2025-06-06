@@ -91,7 +91,6 @@ async def edit_current_user(
     current_user: UserResponse = Depends(get_current_user)
 ):
     user_service = UserService(db)
-    update_data.role = "user"  # Default role for new users
     updated_user = user_service.update_user(current_user.id, update_data)
     if not updated_user:
         raise HTTPException(status_code=404, detail="User not found")
