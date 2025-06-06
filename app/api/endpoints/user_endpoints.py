@@ -96,14 +96,29 @@ def reset_user_password(
             detail="Only administrators can reset passwords"
         )
     
-    user = UserService(db).get_user(user_id)
+    user_service = UserService(db)
+    user = user_service.get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    if "password" not in password_data or not password_data["password"]:
+        raise HTTPException(
+            status_code=400, 
+            detail="Password is required"
+        )
+    # Create a new UserUpdateDTO with the new password
+    new_password = password_data.get("password")
+    user_data = UserUpdateDTO(
+        name=user.name,  # Keep the same name
+        email=user.email,  # Keep the same email
+        password=new_password,  # New password from request
+        image_url=user.image_url,  # Keep the same image URL
+        role=user.role  # Keep the same role
+    )
     # Update with new password
-    UserService(db).update_user(
+    user_service.update_user(
         user_id=user_id, 
-        password=password_data.get("password")
+        user_data=user_data
     )
     
     return {"message": "Password reset successfully"}
