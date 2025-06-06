@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
 from app.api.auth import get_current_user
 from app.api.security import require_role
@@ -81,3 +81,29 @@ def delete_user(user_id: int, db: Session = Depends(get_db), token: str = Depend
     if not success:
         raise HTTPException(status_code=404, detail="User not found")
     return None
+
+@router.put("/{user_id}/reset-password", response_model=dict)
+def reset_user_password(
+    password_data: dict,
+    user_id: int = Path(..., title="The ID of the user to update password"),
+    db: Session = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user),
+):
+    """Reset a user's password (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403, 
+            detail="Only administrators can reset passwords"
+        )
+    
+    user = UserService(db).get_user(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update with new password
+    UserService(db).update_user(
+        user_id=user_id, 
+        password=password_data.get("password")
+    )
+    
+    return {"message": "Password reset successfully"}
