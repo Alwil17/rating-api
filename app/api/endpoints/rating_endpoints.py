@@ -16,10 +16,8 @@ router = APIRouter(prefix="/ratings", tags=["Ratings"])
 @router.get("/distribution", response_model=list[RatingDistributionDTO])
 def get_rating_distribution(
     db: Session = Depends(get_db),
-    token: str = Depends(oauth2_scheme),
     role: str = Depends(require_role(["admin"]))
 ):
-    verify_token(token)
     rating_service = RatingService(db)
     return rating_service.get_rating_distribution()
 
@@ -27,20 +25,16 @@ def get_rating_distribution(
 def get_recent_ratings(
     limit: int = 10,
     db: Session = Depends(get_db), 
-    token: str = Depends(oauth2_scheme),
     role: str = Depends(require_role(["admin"]))
 ):
-    verify_token(token)
     rating_service = RatingService(db)
     return rating_service.get_recent_ratings(limit)
 
 @router.get("/stats", response_model=RatingStatsDTO)
 def get_rating_stats(
     db: Session = Depends(get_db), 
-    token: str = Depends(oauth2_scheme),
     role: str = Depends(require_role(["admin"]))
 ):
-    verify_token(token)
     rating_service = RatingService(db)
     return rating_service.get_rating_stats()
 
