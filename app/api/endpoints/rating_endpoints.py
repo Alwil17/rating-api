@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api.auth import get_current_user
-from app.application.schemas.rating_dto import RatingCreateDTO, RatingUpdateDTO, RatingResponse
+from app.application.schemas.rating_dto import (
+    RatingCreateDTO, RatingUpdateDTO, RatingResponse,
+    RatingDistributionDTO, RecentRatingDTO, RatingStatsDTO
+)
 from app.application.schemas.user_dto import UserResponse
 from app.application.services.rating_service import RatingService
 from app.infrastructure.database import get_db
@@ -92,3 +95,24 @@ def delete_rating(rating_id: int, db: Session = Depends(get_db), token: str = De
     if not success:
         raise HTTPException(status_code=404, detail="Rating not found")
     return None
+
+# Analytics Endpoints
+@router.get("/distribution", response_model=list[RatingDistributionDTO])
+def get_rating_distribution(
+    db: Session = Depends(get_db),
+    role: str = Depends(require_role(["admin"]))):
+    rating_service = RatingService(db)
+    return rating_service.get_rating_distribution()
+
+@router.get("/recent", response_model=list[RecentRatingDTO])
+def get_recent_ratings(
+    limit: int = 10,
+    db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
+    rating_service = RatingService(db)
+    return rating_service.get_recent_ratings(limit)
+
+@router.get("/stats", response_model=RatingStatsDTO)
+def get_rating_stats(
+    db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
+    rating_service = RatingService(db)
+    return rating_service.get_rating_stats()

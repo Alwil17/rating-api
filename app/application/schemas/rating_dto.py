@@ -28,3 +28,33 @@ class RatingResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+# Analytics DTOs
+class RatingDistributionDTO(BaseModel):
+    value: int = Field(..., ge=1, le=5, description="Rating value (1-5)")
+    count: int = Field(..., description="Number of ratings with this value")
+
+class RecentRatingDTO(BaseModel):
+    id: int
+    value: int
+    item_name: str
+    user_name: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class TopCategoryDTO(BaseModel):
+    name: str
+    count: int
+
+    class Config:
+        orm_mode = True
+
+class RatingStatsDTO(BaseModel):
+    average: float = Field(..., description="Average rating across all items")
+    totalCount: int = Field(..., description="Total number of ratings")
+    topCategory: TopCategoryDTO = Field(..., description="Category with most ratings")
+
+    class Config:
+        orm_mode = True
