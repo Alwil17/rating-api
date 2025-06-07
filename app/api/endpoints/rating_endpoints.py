@@ -12,6 +12,31 @@ from app.api.security import oauth2_scheme, require_role, verify_token
 
 router = APIRouter(prefix="/ratings", tags=["Ratings"])
 
+# Analytics Endpoints - moved to the top to avoid route conflicts
+@router.get("/distribution", response_model=list[RatingDistributionDTO])
+def get_rating_distribution(
+    db: Session = Depends(get_db),
+    role: str = Depends(require_role(["admin"]))
+):
+    rating_service = RatingService(db)
+    return rating_service.get_rating_distribution()
+
+@router.get("/recent", response_model=list[RecentRatingDTO])
+def get_recent_ratings(
+    limit: int = 10,
+    db: Session = Depends(get_db), 
+    role: str = Depends(require_role(["admin"]))
+):
+    rating_service = RatingService(db)
+    return rating_service.get_recent_ratings(limit)
+
+@router.get("/stats", response_model=RatingStatsDTO)
+def get_rating_stats(
+    db: Session = Depends(get_db), 
+    role: str = Depends(require_role(["admin"]))
+):
+    rating_service = RatingService(db)
+    return rating_service.get_rating_stats()
 
 @router.get("/{item_id}/my-rating", response_model=RatingResponse)
 def get_my_rating_for_item(
@@ -95,24 +120,3 @@ def delete_rating(rating_id: int, db: Session = Depends(get_db), token: str = De
     if not success:
         raise HTTPException(status_code=404, detail="Rating not found")
     return None
-
-# Analytics Endpoints
-@router.get("/distribution", response_model=list[RatingDistributionDTO])
-def get_rating_distribution(
-    db: Session = Depends(get_db),
-    role: str = Depends(require_role(["admin"]))):
-    rating_service = RatingService(db)
-    return rating_service.get_rating_distribution()
-
-@router.get("/recent", response_model=list[RecentRatingDTO])
-def get_recent_ratings(
-    limit: int = 10,
-    db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
-    rating_service = RatingService(db)
-    return rating_service.get_recent_ratings(limit)
-
-@router.get("/stats", response_model=RatingStatsDTO)
-def get_rating_stats(
-    db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
-    rating_service = RatingService(db)
-    return rating_service.get_rating_stats()
