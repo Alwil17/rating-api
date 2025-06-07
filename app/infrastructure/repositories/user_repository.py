@@ -153,18 +153,22 @@ class UserRepository:
             User.created_at >= today_start
         ).scalar() or 0
         
-        # Average ratings per user
-        ratings_per_user = self.db.query(
-            func.avg(func.count(Rating.id))
-        ).join(
-            User, Rating.user_id == User.id
-        ).group_by(
-            Rating.user_id
+        # Average ratings per user - fixed to use a subquery approach
+        # First, get count of ratings per user in a subquery
+        from sqlalchemy import select
+        subquery = select(
+            Rating.user_id, 
+            func.count(Rating.id).label('rating_count')
+        ).group_by(Rating.user_id).subquery()
+        
+        # Then get the average of those counts
+        avg_result = self.db.query(
+            func.avg(subquery.c.rating_count)
         ).scalar() or 0
         
         return UserStatsDTO(
             total_users=total_users,
             active_users=active_users,
             new_users_today=new_users_today,
-            average_ratings_per_user=round(float(ratings_per_user), 1)
+            average_ratings_per_user=round(float(avg_result), 1)
         )
