@@ -5,7 +5,10 @@ from app.api.auth import get_current_user
 from app.api.security import require_role
 from app.application.schemas.item_dto import ItemResponse
 from app.application.schemas.rating_dto import RatingResponse
-from app.application.schemas.user_dto import UserCreateDTO, UserUpdateDTO, UserResponse
+from app.application.schemas.user_dto import (
+    UserCreateDTO, UserUpdateDTO, UserResponse, 
+    UserGrowthDTO, UserEngagementDTO, UserStatsDTO
+)
 from app.application.services.rating_service import RatingService
 from app.application.services.user_service import UserService
 from app.domain.item import Item
@@ -14,6 +17,65 @@ from app.infrastructure.database import get_db
 from app.api.security import oauth2_scheme, require_role, verify_token
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+# Admin Analytics Endpoints - place these before path parameter routes
+@router.get("/growth", response_model=list[UserGrowthDTO])
+def get_user_growth(
+    days: int = 30,
+    db: Session = Depends(get_db), 
+    role: str = Depends(require_role(["admin"]))
+):
+    """Get user growth data for the specified number of days
+
+    Shows the number of new users that registered each day
+
+    Requires the "admin" role.
+
+    Args:
+        days (int, optional): Number of days to show growth data for. Defaults to 30.
+    """
+
+    user_service = UserService(db)
+    return user_service.get_user_growth(days)
+
+@router.get("/engagement", response_model=list[UserEngagementDTO])
+def get_user_engagement(
+    limit: int = 10,
+    db: Session = Depends(get_db), 
+    role: str = Depends(require_role(["admin"]))
+):
+    """
+    Retrieve a list of the most engaged users based on rating activity.
+
+    Args:
+        limit (int, optional): The maximum number of users to return. Defaults to 10.
+        db (Session): Database session dependency.
+        role (str): Role dependency, requires "admin" role to access.
+
+    Returns:
+        List[UserEngagementDTO]: A list of user engagement data transfer objects.
+    """
+
+    user_service = UserService(db)
+    return user_service.get_user_engagement(limit)
+
+@router.get("/stats", response_model=UserStatsDTO)
+def get_user_stats(
+    db: Session = Depends(get_db), 
+    role: str = Depends(require_role(["admin"]))
+):
+    """Get overall user statistics
+
+    Returns a dictionary with the following keys:
+    
+    - total_users: The total number of users in the database
+    - total_items: The total number of items in the database
+    - total_ratings: The total number of ratings in the database
+    
+    Requires the "admin" role.
+    """
+    user_service = UserService(db)
+    return user_service.get_user_stats()
 
 @router.post("", response_model=UserResponse, status_code=201)
 def create_user(user_data: UserCreateDTO, db: Session = Depends(get_db), role: str = Depends(require_role(["admin"]))):
@@ -122,3 +184,4 @@ def reset_user_password(
     )
     
     return {"message": "Password reset successfully"}
+

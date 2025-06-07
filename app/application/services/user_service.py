@@ -1,4 +1,5 @@
-from typing import List, Optional
+from datetime import datetime, timedelta
+from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
 from app.api.security import verify_password
 from app.domain.user import User
@@ -38,3 +39,15 @@ class UserService:
 
     def delete_user(self, user_id: int) -> bool:
         return self.repository.delete(user_id)
+
+    def get_user_growth(self, days: int = 30) -> List[Dict[str, Any]]:
+        """Get user growth data for the specified number of days"""
+        return self.repository.get_user_growth(days)
+
+    def get_user_engagement(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get most engaged users based on rating activity"""
+        return self.repository.get_user_engagement(limit)
+
+    def get_user_stats(self) -> Dict[str, Any]:
+        """Get overall user statistics"""
+        return self.repository.get_user_stats()
