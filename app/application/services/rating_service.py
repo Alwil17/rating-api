@@ -1,10 +1,17 @@
 # app/application/services/rating_service.py
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
+from sqlalchemy import func, desc
 from app.domain.rating import Rating
+from app.domain.item import Item
+from app.domain.user import User
+from app.domain.category import Category
 from app.infrastructure.repositories.rating_repository import RatingRepository
-from app.application.schemas.rating_dto import RatingCreateDTO, RatingUpdateDTO
+from app.application.schemas.rating_dto import (
+    RatingCreateDTO, RatingUpdateDTO, 
+    RatingDistributionDTO, RecentRatingDTO, RatingStatsDTO, TopCategoryDTO
+)
 
 class RatingService:
     def __init__(self, db_session: Session):
@@ -63,3 +70,15 @@ class RatingService:
         updated_rating = self.repository.update(rating_id, update_dto)
         
         return updated_rating
+
+    def get_rating_distribution(self) -> List[Dict[str, Any]]:
+        """Get distribution of ratings across values 1-5"""
+        return self.repository.get_rating_distribution()
+
+    def get_recent_ratings(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get most recent ratings with user and item information"""
+        return self.repository.get_recent_ratings(limit)
+
+    def get_rating_stats(self) -> Dict[str, Any]:
+        """Get overall rating statistics"""
+        return self.repository.get_rating_stats()
