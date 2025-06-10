@@ -12,6 +12,7 @@ class RefreshToken(Base):
     revoked = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     
+    # Add the back-reference to User
     user = relationship("User", back_populates="refresh_tokens")
     
     created_at = Column(DateTime, default=datetime.utcnow)
