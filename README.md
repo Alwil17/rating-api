@@ -113,8 +113,11 @@ cp .env.example .env
 
 5. Initialize the database migrations:
 ```bash
-# First time only - initialize alembic migrations
-alembic init alembic
+# Make sure your database connection details are in .env file
+# DATABASE_URL=postgresql://username:password@localhost:5432/ratingapp
+
+# Create the versions directory if it doesn't exist
+mkdir -p alembic/versions
 
 # Create a new migration
 alembic revision --autogenerate -m "Initial migration"
