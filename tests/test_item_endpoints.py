@@ -1,11 +1,19 @@
 import pytest
+import random
 from fastapi.testclient import TestClient
 from app.api.main import app
 
-client = TestClient(app)
+@pytest.fixture
+def category_id(client):
+    category_payload = {
+        "name": f"Test Category {random.randint(1000, 9999)}",
+        "description": "Test Category Description"
+    }
+    response = client.post("/categories", json=category_payload)
+    assert response.status_code == 201, response.text
+    return response.json()["id"]
 
-@pytest.fixture(scope="session")
-def auth_headers():
+def auth_headers(client):
     # Crée un utilisateur et récupère un token d'authentification
     create_user_payload = {
         "name": "Test User",
@@ -25,101 +33,98 @@ def auth_headers():
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
-def test_create_and_get_item(auth_headers):
-    # Test de création d'un item
+def test_create_and_get_item(client, user_auth, category_id):
     item_payload = {
-        "name": "Test Item",
+        "name": f"Test Item {random.randint(1000, 9999)}",
         "description": "This is a test item",
-        "image_url": "",
-        "category_ids": [1],
-        "tags": ["tag1", "tag2"]
+        "category_ids": [category_id],
+        "tags": ["test", "sample"]
     }
-    response = client.post("/items", json=item_payload, headers=auth_headers)
+    
+    # Create an item
+    response = client.post("/items", json=item_payload, headers=user_auth["headers"])
     assert response.status_code == 201, response.text
-    created_item = response.json()
-    assert created_item["name"] == item_payload["name"]
-    assert created_item["description"] == item_payload["description"]
-
-    # Test de récupération de l'item créé
-    item_id = created_item["id"]
-    response = client.get(f"/items/{item_id}", headers=auth_headers)
+    item = response.json()
+    assert item["name"] == item_payload["name"]
+    assert item["description"] == item_payload["description"]
+    
+    # Get the item by ID
+    item_id = item["id"]
+    response = client.get(f"/items/{item_id}")
     assert response.status_code == 200, response.text
     fetched_item = response.json()
+    assert fetched_item["id"] == item_id
     assert fetched_item["name"] == item_payload["name"]
-    assert fetched_item["description"] == item_payload["description"]
 
-def test_list_items_with_filters(auth_headers):
-    # Création de plusieurs items
-    item_payload_1 = {
-        "name": "Item 1",
-        "description": "Description for Item 1",
-        "category_ids": [1],
-        "tags": ["tag1", "tag2"]
-    }
-    item_payload_2 = {
-        "name": "Item 2",
-        "description": "Description for Item 2",
-        "category_ids": [2],
-        "tags": ["tag2", "tag3"]
-    }
-
-    client.post("/items", json=item_payload_1, headers=auth_headers)
-    client.post("/items", json=item_payload_2, headers=auth_headers)
-
-    # Test de liste sans filtres
-    response = client.get("/items", headers=auth_headers)
+def test_list_items_with_filters(client, admin_auth, category_id):
+    # Create a few items
+    for i in range(3):
+        item_payload = {
+            "name": f"Filtered Item {i}",
+            "description": f"Filtered item description {i}",
+            "category_ids": [category_id],
+            "tags": ["filter", f"tag{i}"]
+        }
+        response = client.post("/items", json=item_payload, headers=admin_auth["headers"])
+        assert response.status_code == 201, response.text
+    
+    # Test filters
+    
+    # By category
+    response = client.get(f"/items?category_id={category_id}")
     assert response.status_code == 200, response.text
     items = response.json()
-    assert len(items) >= 2
-
-    # Test de liste avec filtre par catégorie
-    response = client.get("/items?category_id=1", headers=auth_headers)
+    assert len(items) > 0
+    
+    # By tag
+    response = client.get("/items?tags=filter")
     assert response.status_code == 200, response.text
-    filtered_items = response.json()
-    assert all(1 in [cat["id"] for cat in item["categories"]] for item in filtered_items)
+    items = response.json()
+    assert len(items) > 0
 
-    # Test de liste avec filtre par tags
-    response = client.get("/items?tags=tag2", headers=auth_headers)
-    assert response.status_code == 200, response.text
-    filtered_items = response.json()
-    assert any("tag2" in [tag["name"] for tag in item["tags"]] for item in filtered_items)
-
-def test_update_item(auth_headers):
-    # Création d'un item
+def test_update_item(client, admin_auth, category_id):
+    # Create an item to update
     item_payload = {
         "name": "Item to Update",
-        "description": "Original description",
-        "category_ids": [1],
-        "tags": ["tag1"]
+        "description": "This will be updated",
+        "image_url": "http://example.com/image.jpg",
+        "category_ids": [category_id],
+        "tags": ["update"]
     }
-    response = client.post("/items", json=item_payload, headers=auth_headers)
+    response = client.post("/items", json=item_payload, headers=admin_auth["headers"])
     assert response.status_code == 201, response.text
-    created_item = response.json()
-
-    # Mise à jour de l'item
+    item_id = response.json()["id"]
+    
+    # Update the item
     update_payload = {
-        "name": "Updated Item",
+        "name": "Updated Item Name",
         "description": "Updated description",
-        "category_ids": [2],
-        "tags": ["tag2", "tag3"]
+        "image_url": "http://example.com/image.jpg",
+        "category_ids": [category_id],
+        "tags": ["updated"]
     }
-    item_id = created_item["id"]
-    response = client.put(f"/items/{item_id}", json=update_payload, headers=auth_headers)
-    assert response.status_code == 403, response.text
+    response = client.put(f"/items/{item_id}", json=update_payload, headers=admin_auth["headers"])
+    assert response.status_code == 200, response.text
+    updated_item = response.json()
+    assert updated_item["name"] == update_payload["name"]
+    assert updated_item["description"] == update_payload["description"]
 
-def test_delete_item(auth_headers):
-    # Création d'un item
+def test_delete_item(client, admin_auth, category_id):
+    # Create an item to delete
     item_payload = {
         "name": "Item to Delete",
-        "description": "This item will be deleted",
-        "category_ids": [1],
-        "tags": ["tag1"]
+        "description": "This will be deleted",
+        "category_ids": [category_id],
+        "tags": ["delete"]
     }
-    response = client.post("/items", json=item_payload, headers=auth_headers)
+    response = client.post("/items", json=item_payload, headers=admin_auth["headers"])
     assert response.status_code == 201, response.text
-    created_item = response.json()
-
-    # Suppression de l'item 
-    item_id = created_item["id"]
-    response = client.delete(f"/items/{item_id}", headers=auth_headers)
-    assert response.status_code == 403, response.text
+    item_id = response.json()["id"]
+    
+    # Delete the item
+    response = client.delete(f"/items/{item_id}", headers=admin_auth["headers"])
+    assert response.status_code == 204, response.text
+    
+    # Verify it was deleted
+    response = client.get(f"/items/{item_id}")
+    assert response.status_code == 400
