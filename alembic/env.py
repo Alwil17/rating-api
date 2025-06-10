@@ -2,22 +2,25 @@ import os
 from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from app.config import settings
 
-# Import models so Alembic can detect them
+# Import Base from your SQLAlchemy setup
+from app.infrastructure.database import Base
+
+# Import all models so Alembic can detect them
+# Import the Base class first
 from app.domain.user import User
 from app.domain.item import Item
-from app.domain.category import Category
+from app.domain.category import Category  
 from app.domain.tag import Tag
 from app.domain.rating import Rating
 from app.domain.refresh_token import RefreshToken
-from app.infrastructure.database import Base
 
-# this is the Alembic Config object
+# This is the Alembic Config object
 config = context.config
 
-# Override sqlalchemy.url with environment variable or settings
-# This is how we avoid storing credentials in alembic.ini
+# Get database URL from environment variables
+from app.config import settings
+
 db_absolute_url = f"{settings.DB_ENGINE}://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 database_url = os.environ.get("DATABASE_URL") or db_absolute_url
 config.set_main_option("sqlalchemy.url", database_url)
