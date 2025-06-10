@@ -150,11 +150,29 @@ The API uses JWT tokens for authentication:
 
 ## 🧪 Testing
 
-Run the test suite with:
+### Setting up a test database
+
+Before running tests, you need to set up a test database:
 
 ```bash
-pytest
+# Create the test database
+python setup_test_db.py
 ```
+
+### Running tests
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test file
+pytest tests/test_auth.py
+
+# Run with verbose output
+pytest -v
+```
+
+Tests use a separate database named `rating_db_test` by default to avoid affecting your development or production data.
 
 ## 📚 API Documentation
 
