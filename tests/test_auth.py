@@ -1,17 +1,13 @@
 import pytest
 import random
 import string
-from fastapi.testclient import TestClient
-from app.api.main import app
-
-client = TestClient(app)
 
 def generate_random_email():
     """Generate a random email to avoid conflicts in tests"""
     random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
     return f"test_{random_str}@example.com"
 
-def test_auth_flow():
+def test_auth_flow(client):
     # 1. Register a new user with a unique email
     register_payload = {
         "name": "Auth Test User",
@@ -63,14 +59,14 @@ def test_auth_flow():
     assert response.status_code == 401, response.text
 
 
-def test_invalid_refresh_token():
+def test_invalid_refresh_token(client):
     # Test with an invalid refresh token
     refresh_payload = {"refresh_token": "this_is_not_a_valid_refresh_token"}
     response = client.post("/auth/refresh", json=refresh_payload)
     assert response.status_code == 401, response.text
 
 
-def test_invalid_login():
+def test_invalid_login(client):
     # Test with invalid credentials
     form_data = {
         "username": "nonexistent@example.com",
