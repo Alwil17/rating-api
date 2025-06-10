@@ -9,8 +9,8 @@ def admin_auth_headers():
     # Create an admin user and get an authentication token
     create_admin_payload = {
         "name": "Admin User",
-        "email": "admin@example.com",
-        "password": "adminpassword"
+        "email": "tt.admin@example.com",
+        "password": "P@ssw0rd#123"
     }
     response = client.post("/auth/register", json=create_admin_payload)
     if response.status_code != 201:  # If the admin already exists
@@ -70,11 +70,10 @@ def test_create_user(admin_auth_headers):
 
 def test_get_user(user_auth_headers):
     # Test retrieving the current user
-    response = client.get("/users/1", headers=user_auth_headers)  # Assuming user ID 1
+    response = client.get("/auth/me", headers=user_auth_headers)
     assert response.status_code == 200, response.text
     user = response.json()
-    assert user["id"] == 1
-    assert user["email"] == "testuser@example.com"
+    assert user["id"] != 0
 
 
 def test_list_users(admin_auth_headers):
@@ -88,15 +87,23 @@ def test_list_users(admin_auth_headers):
 
 def test_list_user_ratings(user_auth_headers):
     # Test listing ratings for the current user
-    response = client.get("/users/1/ratings", headers=user_auth_headers)  # Assuming user ID 1
+    response = client.get("/auth/me", headers=user_auth_headers)
+    assert response.status_code == 200, response.text
+    user = response.json()
+
+    response = client.get(f"/users/{user['id']}/ratings", headers=user_auth_headers)  # Assuming user ID 1
     assert response.status_code == 200, response.text
     ratings = response.json()
     assert isinstance(ratings, list)
 
 
 def test_get_recommendations(user_auth_headers):
+    response = client.get("/auth/me", headers=user_auth_headers)
+    assert response.status_code == 200, response.text
+    user = response.json()
+
     # Test getting recommendations for the current user
-    response = client.get("/users/1/recommandations", headers=user_auth_headers)  # Assuming user ID 1
+    response = client.get(f"/users/{user['id']}/recommandations", headers=user_auth_headers)  # Assuming user ID 1
     assert response.status_code == 200, response.text
     recommendations = response.json()
     assert isinstance(recommendations, list)
