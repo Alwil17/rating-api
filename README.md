@@ -1,6 +1,6 @@
-# RatingApp - Comprehensive Rating & Review Platform
+# Rating API - Comprehensive Rating & Review Platform
 
-RatingApp is a full-featured rating and review platform built with a modern tech stack. It allows users to rate and review items, discover new content through recommendations, and provides administrators with powerful analytics tools.
+Rating API is a full-featured rating and review platform built with a modern tech stack. It allows users to rate and review items, discover new content through recommendations, and provides administrators with powerful analytics tools.
 
 ## 🚀 Features
 
@@ -90,8 +90,8 @@ RatingApp/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/RatingApp.git
-cd RatingApp
+git clone https://github.com/Alwil17/rating-api.git
+cd rating-api
 ```
 
 2. Set up a virtual environment:
@@ -111,14 +111,21 @@ cp .env.example .env
 # Edit .env with your database credentials and settings
 ```
 
-5. Run database migrations:
+5. Initialize the database migrations:
 ```bash
+# First time only - initialize alembic migrations
+alembic init alembic
+
+# Create a new migration
+alembic revision --autogenerate -m "Initial migration"
+
+# Apply the migrations
 alembic upgrade head
 ```
 
 6. Start the backend server:
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.api.main:app --reload
 ```
 
 ## 🐳 Docker Setup
@@ -151,6 +158,7 @@ pytest
 API documentation is automatically generated and available at:
 
 - Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 ## 🤝 Contributing
 
