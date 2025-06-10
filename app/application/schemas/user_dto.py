@@ -32,8 +32,7 @@ class UserGrowthDTO(BaseModel):
     date: date
     count: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserEngagementDTO(BaseModel):
     user_id: int
@@ -41,8 +40,7 @@ class UserEngagementDTO(BaseModel):
     ratings_count: int
     last_activity: date
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserStatsDTO(BaseModel):
     total_users: int
@@ -50,5 +48,4 @@ class UserStatsDTO(BaseModel):
     new_users_today: int
     average_ratings_per_user: float
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
