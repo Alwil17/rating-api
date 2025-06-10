@@ -2,6 +2,7 @@ import os
 from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from app.config import settings
 
 # Import models so Alembic can detect them
 from app.domain.user import User
@@ -15,9 +16,11 @@ from app.infrastructure.database import Base
 # this is the Alembic Config object
 config = context.config
 
-# Load database URL from environment variable or use the one in alembic.ini
-if os.getenv("DATABASE_URL"):
-    config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+# Override sqlalchemy.url with environment variable or settings
+# This is how we avoid storing credentials in alembic.ini
+db_absolute_url = f"{settings.DB_ENGINE}://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+database_url = os.environ.get("DATABASE_URL") or db_absolute_url
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging
 fileConfig(config.config_file_name)
