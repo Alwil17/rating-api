@@ -27,7 +27,8 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = "password"
 
     # JWT
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 21600  # 15 days
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30  # 30 days
     JWT_ALGORITHM: str = "HS256"
 
     # OAuth
