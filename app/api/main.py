@@ -7,7 +7,7 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 # Importer la dépendance de la base de données
 from app.api.endpoints import item_endpoints, rating_endpoints, user_endpoints, category_endpoints, tag_endpoints
-import app.api.auth as auth
+import app.api.endpoints.auth_endpoints as auth_endpoints
 from app.config import settings
 
 # Initialise Sentry avec ton DSN (à stocker dans une variable d'environnement)
@@ -30,7 +30,7 @@ app.include_router(tag_endpoints.router)
 app.include_router(rating_endpoints.router)
 app.include_router(user_endpoints.router)
 app.include_router(item_endpoints.router)
-app.include_router(auth.router)
+app.include_router(auth_endpoints.router)
 
 if(settings.PROMETHEUS_ENABLED):
     # Instrumentation pour Prometheus
