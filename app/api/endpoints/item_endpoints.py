@@ -23,8 +23,11 @@ def create_item(item_data: ItemCreateDTO, token: str = Depends(oauth2_scheme), d
 
 @router.get("/{item_id}", response_model=ItemResponse)
 def get_item(item_id: int, db: Session = Depends(get_db)):
-    item, avg, count = ItemService(db).get_item(item_id)
-    return serialize_item(item, avg, count)
+    try:
+        item, avg, count = ItemService(db).get_item(item_id)
+        return serialize_item(item, avg, count)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 def serialize_item(item, avg, count):
     return ItemResponse.model_validate({
