@@ -36,16 +36,3 @@ class RefreshTokenRepository:
         self.db.commit()
         
         return True
-    
-    def revoke_all_for_user(self, user_id: int) -> bool:
-        """Revoke all refresh tokens for a user"""
-        tokens = self.db.query(RefreshToken).filter(
-            RefreshToken.user_id == user_id,
-            RefreshToken.revoked == False
-        ).all()
-        
-        for token in tokens:
-            token.revoked = True
-        
-        self.db.commit()
-        return True
