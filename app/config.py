@@ -20,12 +20,12 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # Database
-    DB_ENGINE: str = "sqlite"
+    DB_ENGINE: str = "postgresql"
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
-    DB_NAME: str = "ratings"
-    DB_USER: str = "user"
-    DB_PASSWORD: str = "password"
+    DB_NAME: str = "rating_db"
+    DB_USER: str = "postgres"
+    DB_PASSWORD: str = "postgres"
 
     # JWT
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))
