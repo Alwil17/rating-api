@@ -5,23 +5,36 @@ import app.domain  # Ceci charge les modules user, item, rating via __init__.py
 from app.config import settings
 from app.infrastructure.seeders.category_seeder import seed_categories
 from app.infrastructure.seeders.item_seeder import seed_items
+import os
 
-if(settings.DB_ENGINE == "postgresql"):
-    url = URL.create(
-        drivername="postgresql",
-        username=settings.DB_USER,
-        password=settings.DB_PASSWORD,
-        host=settings.DB_HOST,
-        database=settings.DB_NAME
-    )
+# Check if we're running in test mode
+is_test = os.environ.get("APP_ENV") == "test"
 
-    engine = create_engine(url) 
-else:
-    DATABASE_URL = f"{settings.DB_ENGINE}://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+# Use SQLite for tests, PostgreSQL for production
+if is_test:
+    from app.config_test import test_settings
+    SQLALCHEMY_DATABASE_URL = test_settings.DATABASE_URL
     engine = create_engine(
-        DATABASE_URL, 
-        connect_args={"check_same_thread": False}
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"check_same_thread": False}  # Only needed for SQLite
     )
+else:
+    if(settings.DB_ENGINE == "postgresql"):
+        url = URL.create(
+            drivername="postgresql",
+            username=settings.DB_USER,
+            password=settings.DB_PASSWORD,
+            host=settings.DB_HOST,
+            database=settings.DB_NAME
+        )
+
+        engine = create_engine(url) 
+    else:
+        DATABASE_URL = f"{settings.DB_ENGINE}://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+        engine = create_engine(
+            DATABASE_URL, 
+            connect_args={"check_same_thread": False}
+        )
 
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
