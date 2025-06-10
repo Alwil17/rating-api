@@ -183,7 +183,12 @@ async def logout(
 def register_user(user_data: UserCreateDTO, db: Session = Depends(get_db)):
     user_service = UserService(db)
     try:
-        user_data.role = "user"  # Default role for new users
+        # Pour les environnements de test, permettre la création d'admins par email
+        if (settings.APP_ENV.lower() == "testing") and "admin" in user_data.email:
+            user_data.role = "admin"
+        else:
+            user_data.role = "user"  # Default role for normal users
+            
         user = user_service.create_user(user_data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
