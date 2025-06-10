@@ -5,14 +5,20 @@ import app.domain  # Ceci charge les modules user, item, rating via __init__.py
 from app.config import settings
 from app.infrastructure.seeders.category_seeder import seed_categories
 from app.infrastructure.seeders.item_seeder import seed_items
+import os
 
-if(settings.APP_DEBUG):
-    DATABASE_URL = "sqlite:///./ratings.db"
+# Check if we're running in test mode
+is_test = os.environ.get("APP_ENV") == "test"
+
+# Use SQLite for tests, PostgreSQL for production
+if is_test:
+    from app.config_test import test_settings
+    SQLALCHEMY_DATABASE_URL = test_settings.DATABASE_URL
     engine = create_engine(
-        DATABASE_URL, 
-        connect_args={"check_same_thread": False}
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"check_same_thread": False}  # Only needed for SQLite
     )
-else: 
+else:
     if(settings.DB_ENGINE == "postgresql"):
         url = URL.create(
             drivername="postgresql",

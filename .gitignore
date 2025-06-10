@@ -189,3 +189,4 @@ app/infrastructure/__pycache__/database.cpython-312.pyc
 .vscode/*
 
 *.db
+*.sql

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.api.auth import get_current_user
+from app.api.endpoints.auth_endpoints import get_current_user
 from app.application.schemas.rating_dto import (
     RatingCreateDTO, RatingUpdateDTO, RatingResponse,
     RatingDistributionDTO, RecentRatingDTO, RatingStatsDTO

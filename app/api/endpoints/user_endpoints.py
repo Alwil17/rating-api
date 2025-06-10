@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
-from app.api.auth import get_current_user
+from app.api.endpoints.auth_endpoints import get_current_user
 from app.api.security import require_role
 from app.application.schemas.item_dto import ItemResponse
 from app.application.schemas.rating_dto import RatingResponse

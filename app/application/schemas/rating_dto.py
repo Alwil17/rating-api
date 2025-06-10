@@ -41,20 +41,17 @@ class RecentRatingDTO(BaseModel):
     user_name: str
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TopCategoryDTO(BaseModel):
     name: str
     count: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class RatingStatsDTO(BaseModel):
     average: float = Field(..., description="Average rating across all items")
     totalCount: int = Field(..., description="Total number of ratings")
     topCategory: TopCategoryDTO = Field(..., description="Category with most ratings")
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

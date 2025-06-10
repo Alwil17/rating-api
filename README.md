@@ -1,188 +1,190 @@
-# 📌 FastAPI Rating System
+# Rating API - Comprehensive Rating & Review Platform
 
-Ce projet est une API REST développée avec **FastAPI** permettant la gestion des utilisateurs, des items et des évaluations (ratings). Il suit une architecture modulaire et repose sur SQLAlchemy pour la gestion des données.
+Rating API is a full-featured rating and review platform built with a modern tech stack. It allows users to rate and review items, discover new content through recommendations, and provides administrators with powerful analytics tools.
 
----
+## 🚀 Features
 
-## 📂 Structure du projet
-```
-.github/
-│   └── workflows/
-│       └── python-app.yml      # CI/CD workflow GitHub Actions
+### User Features
+- **User Authentication** - Secure login/signup system
+- **Item Rating & Reviews** - Rate items on a 1-5 scale and leave detailed comments
+- **Personal Recommendations** - Get personalized recommendations based on rating history
+- **Profile Management** - Update personal information and view rating history
 
-app/
-├── api/                 # Routeurs FastAPI et logique d'authentification
-│   ├── endpoints/       # Endpoints REST (users, items, ratings, categories, tags)
-│   ├── main.py          # Point d'entrée principal de l'API
-│   ├── auth.py          # Authentification et sécurité
-│   └── security.py      # Dépendances et outils de sécurité
-│
-├── application/
-│   ├── schemas/         # DTOs et modèles de réponse Pydantic
-│   ├── services/        # Logique métier (services)
-│
-├── domain/              # Modèles SQLAlchemy (User, Item, Rating, etc.)
-│
-├── infrastructure/
-│   ├── database.py      # Configuration de la base de données et session
-│   ├── repositories/    # Accès aux données (repositories)
-│   └── seeders/         # Scripts de seed pour les catégories/items
-│
-resources/           # Contient les diagrammes UML
-│   ├── schema.puml         # Schéma de la base de données (PlantUML)
-│   ├── schema.png          # Version image du schéma de la BD
-│   ├── sequence.puml       # Diagramme de séquence (PlantUML)
-│   ├── sequence.png        # Version image du diagramme de séquence
-│
-tests/                          # Tests unitaires et d'intégration
-│   └── ...
+### Admin Features
+- **Complete User Management** - Create, update, and manage user accounts
+- **Item Management** - Add, update, and categorize items
+- **Category System** - Organize items into customizable categories
+- **Tag System** - Add flexible tags to better describe items
+- **Content Moderation** - Remove inappropriate reviews/comments
+- **Analytics Dashboard** - Comprehensive analytics including:
+  - Rating distributions
+  - User growth metrics
+  - Engagement statistics
+  - Overall platform performance
 
-requirements.txt        # Dépendances du projet
-README.md               # Documentation du projet
-.dockerignore                   # Fichiers à ignorer par Docker
-.env                            # Variables d'environnement (à ne pas versionner)
-.env.example                    # Exemple de configuration d'environnement
-.gitignore                      # Fichiers à ignorer par Git
-.safety-project.ini             # Configuration de l'outil Safety
-bandit.yaml                     # Configuration de l'outil Bandit
-CODE_OF_CONDUCT.md              # Code de conduite des contributeurs
-CONTRIBUTING.md                 # Guide de contribution
-Dockerfile                      # Image Docker de l'application
-ratings.db                      # Base SQLite locale (pour dev/test)
+## 🛠️ Technology Stack
+
+### Backend
+- **FastAPI** - High-performance API framework
+- **SQLAlchemy** - ORM for database interactions
+- **PostgreSQL** - Robust relational database
+- **Pydantic** - Data validation and settings management
+- **JWT** - Token-based authentication
+
+### Frontend
+- **Next.js** - React framework for web interface
+- **React Query** - Data fetching and state management
+- **Tailwind CSS** - Utility-first CSS framework
+- **Chart.js** - Data visualization
+
+## 📋 Project Structure
 
 ```
----
+RatingApp/
+│
+├── app/                          # Backend application
+│   ├── api/                      # API routes and endpoints
+│   │   ├── endpoints/            # Individual route modules
+│   │   ├── auth.py               # Authentication handlers
+│   │   └── security.py           # Security utilities
+│   │
+│   ├── application/              # Application layer
+│   │   ├── schemas/              # Pydantic schemas/DTOs
+│   │   └── services/             # Business logic services
+│   │
+│   ├── domain/                   # Domain models
+│   │   ├── user.py
+│   │   ├── item.py
+│   │   ├── category.py
+│   │   ├── tag.py
+│   │   └── rating.py
+│   │
+│   ├── infrastructure/           # Data access layer
+│   │   ├── repositories/         # Repository pattern implementations
+│   │   └── database.py           # Database connection
+│   │
+│   ├── config.py                 # Application configuration
+│   └── main.py                   # Application entry point
+│
+├── migrations/                   # Database migration files
+├── tests/                        # Test suite
+├── docker/                       # Docker configuration
+│   ├── Dockerfile.api            # API service Dockerfile
+│   ├── Dockerfile.frontend       # Frontend Dockerfile
+│   └── docker-compose.yml        # Docker composition
+│
+├── requirements.txt              # Python dependencies
+├── .env.example                  # Example environment variables
+└── README.md                     # Project documentation
+```
 
-## 🛠️ Installation et Exécution
+## 🚀 Getting Started
 
-### 1️⃣ Prérequis
+### Prerequisites
+- Python 3.9+
+- Node.js 16+
+- PostgreSQL
+- Docker (optional)
 
-- Python 3.8+
-- (Optionnel) PostgreSQL si vous ne souhaitez pas utiliser SQLite
+### Backend Setup
 
-### 2️⃣ Installation des dépendances
+1. Clone the repository:
+```bash
+git clone https://github.com/Alwil17/rating-api.git
+cd rating-api
+```
 
+2. Set up a virtual environment:
 ```bash
 python -m venv venv
-# Sur Mac/Linux
-source venv/bin/activate
-# Sur Windows
-venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
+3. Install dependencies:
+```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Configuration
-
-Créez un fichier `.env` à la racine du projet (en vous basant sur le fichier `.env.example`) pour surcharger les variables de configuration si besoin (voir `app/config.py` pour les variables disponibles).
-
-Exemple :
-```
-APP_DEBUG=True
-DB_ENGINE=sqlite
-DB_NAME=ratings
-DB_USER=user
-DB_PASSWORD=password
-DB_HOST=localhost
-DB_PORT=5432
-SENTRY_DSN=
+4. Configure environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your database credentials and settings
 ```
 
-### 4️⃣ Initialisation de la base de données
+5. Initialize the database migrations:
+```bash
+# Make sure your database connection details are in .env file
+# DATABASE_URL=postgresql://username:password@localhost:5432/ratingapp
 
-Au premier lancement, la base de données sera automatiquement créée et seedée avec des catégories et items de base si `APP_DEBUG=True`.
+# Create the versions directory if it doesn't exist
+mkdir -p alembic/versions
 
-### 5️⃣ Lancer l'application
+# Create a new migration
+alembic revision --autogenerate -m "Initial migration"
+
+# Apply the migrations
+alembic upgrade head
+```
+
+6. Start the backend server:
+```bash
+uvicorn app.api.main:app --reload
+```
+
+## 🐳 Docker Setup
+
+For a quick setup with Docker:
 
 ```bash
-uvicorn app.api.main:app --reload --host 0.0.0.0
+docker-compose up -d
 ```
 
-L'API sera accessible sur : [http://127.0.0.1:8000](http://127.0.0.1:8000)
+This will start both the backend API and frontend services, along with a PostgreSQL database.
 
----
+## 🔒 API Authentication
 
-## 📖 Documentation interactive
+The API uses JWT tokens for authentication:
 
-- Swagger UI : [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- ReDoc : [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+1. Get a token by calling POST `/auth/token` with email and password
+2. Include the token in subsequent requests as a Bearer token in the Authorization header
 
-Les endpoints sont organisés en groupes :
-- **Users** → `/users/...`
-- **Items** → `/items/...`
-- **Ratings** → `/ratings/...`
-- **Categories** → `/categories/...`
-- **Tags** → `/tags/...`
-- **Auth** → `/auth/...`
+## 🧪 Testing
 
----
+### Setting up a test database
 
-## 🔐 Authentification
-
-L'API utilise OAuth2 avec Bearer token.  
-Pour tester les endpoints protégés :
-1. Créez un utilisateur via `/auth/register`
-2. Récupérez un token via `/auth/token`
-3. Ajoutez le header `Authorization: Bearer <token>` à vos requêtes
-
----
-
-## 🧪 Tests
-
-Pour lancer les tests unitaires et d'intégration :
+Before running tests, you need to set up a test database:
 
 ```bash
+# Create the test database
+python setup_test_db.py
+```
+
+### Running tests
+
+```bash
+# Run all tests
 pytest
+
+# Run specific test file
+pytest tests/test_auth.py
+
+# Run with verbose output
+pytest -v
 ```
 
----
+Tests use a separate database named `rating_db_test` by default to avoid affecting your development or production data.
 
-## 🐳 Docker
+## 📚 API Documentation
 
-Pour builder et lancer l'application avec Docker :
+API documentation is automatically generated and available at:
 
-```bash
-docker build -t rating_api .
-docker run -p 8000:8000 rating_api
-```
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
-Un workflow GitHub Actions est fourni pour CI/CD et le push automatique sur Docker Hub.
+## 🤝 Contributing
 
----
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📊 Diagrammes UML
+## 📝 License
 
-- **Schéma de la base de données** :  
-  ![DB Schema](resources/schema.png)
-- **Diagramme de séquence** :  
-  ![Diagramme de séquence](resources/sequence.png)
-
----
-
-## 🛠 Technologies utilisées
-
-- **FastAPI** : Framework web rapide pour Python
-- **SQLAlchemy** : ORM pour la gestion des bases de données
-- **PostgreSQL** ou **SQLite** : Base de données relationnelle
-- **Uvicorn** : Serveur ASGI performant
-- **PlantUML** : Génération de diagrammes UML
-- **Pytest** : Tests unitaires
-- **Docker** : Conteneurisation
-- **Sentry** : Monitoring des erreurs (optionnel)
-- **Prometheus** : Monitoring des métriques (optionnel)
-
----
-
-## 🚀 Améliorations futures
-
-- 🔹 Authentification OAuth2 avancée
-- 🔹 WebSockets pour les mises à jour en temps réel
-- 🔹 Permissions et rôles avancés
-- 🔹 Recommandations personnalisées
-
----
-
-## 📩 Contact
-
-Pour toute question ou contribution, ouvrez une issue ou une pull request sur le dépôt GitHub.  
-Merci d'utiliser et d'améliorer ce projet ! 😃
+This project is licensed under the MIT License - see the LICENSE file for details.

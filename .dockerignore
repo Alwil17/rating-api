@@ -12,3 +12,4 @@ venv/
 .venv/
 .idea/
 .vscode/
+*.sql
