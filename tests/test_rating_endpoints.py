@@ -96,10 +96,15 @@ def test_update_rating(auth_headers, item_id):
     assert updated_rating["comment"] == "Actually, it's great!"
 
 def test_delete_rating(auth_headers, item_id):
-    user_id = get_user_id(auth_headers)
+    # Get the current user's ID
+    response = client.get("/auth/me", headers=auth_headers)
+    assert response.status_code == 200, response.text
+    user_id = response.json()["id"]
+    
+    # Create a rating with the current user
     rating_payload = {
         "item_id": item_id,
-        "user_id": user_id,
+        "user_id": user_id,  # Use current user's ID
         "value": 3,
         "comment": "To be deleted"
     }
@@ -107,8 +112,15 @@ def test_delete_rating(auth_headers, item_id):
     assert response.status_code == 201, response.text
     rating_id = response.json()["id"]
 
+    # Verify the rating was created with the current user
+    response = client.get(f"/ratings/{rating_id}", headers=auth_headers)
+    assert response.status_code == 200, response.text
+    assert response.json()["user_id"] == user_id, "Rating was not created with the expected user ID"
+
+    # Delete the rating
     response = client.delete(f"/ratings/{rating_id}", headers=auth_headers)
     assert response.status_code == 204, response.text
 
+    # Verify the rating was deleted
     response = client.get(f"/ratings/{rating_id}", headers=auth_headers)
     assert response.status_code == 404
