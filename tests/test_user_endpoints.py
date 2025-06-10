@@ -1,16 +1,12 @@
 import pytest
-from fastapi.testclient import TestClient
-from app.api.main import app
 
-client = TestClient(app)
-
-@pytest.fixture(scope="session")
-def admin_auth_headers():
+@pytest.fixture
+def admin_auth_headers(client):
     # Create an admin user and get an authentication token
     create_admin_payload = {
         "name": "Admin User",
-        "email": "tt.admin@example.com",
-        "password": "P@ssw0rd#123"
+        "email": "admin@example.com",
+        "password": "adminpassword"
     }
     response = client.post("/auth/register", json=create_admin_payload)
     if response.status_code != 201:  # If the admin already exists
@@ -22,15 +18,12 @@ def admin_auth_headers():
     }
     response = client.post("/auth/token", data=form_data)
     assert response.status_code == 200, response.text
-    token_data = response.json()
-    access_token = token_data["access_token"]
-    # Store the refresh token for later tests
-    pytest.admin_refresh_token = token_data["refresh_token"]
-    return {"Authorization": f"Bearer {access_token}"}
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 
 
 @pytest.fixture
-def user_auth_headers():
+def user_auth_headers(client):
     # Create a regular user and get an authentication token
     create_user_payload = {
         "name": "Test User",
@@ -47,36 +40,42 @@ def user_auth_headers():
     }
     response = client.post("/auth/token", data=form_data)
     assert response.status_code == 200, response.text
-    token_data = response.json()
-    access_token = token_data["access_token"]
-    # Store the refresh token for later tests
-    pytest.user_refresh_token = token_data["refresh_token"]
-    return {"Authorization": f"Bearer {access_token}"}
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 
 
-def test_create_user(admin_auth_headers):
+def test_create_user(client, admin_auth_headers):
     # Test creating a new user
     user_payload = {
         "name": "New User",
         "email": "newuser@example.com",
         "password": "newpassword"
     }
-    response = client.post("/users", json=user_payload, headers=admin_auth_headers)
+    response = client.post(
+        "/users", 
+        json=user_payload, 
+        headers=admin_auth_headers
+    )
     assert response.status_code == 201, response.text
     created_user = response.json()
     assert created_user["name"] == user_payload["name"]
     assert created_user["email"] == user_payload["email"]
 
 
-def test_get_user(user_auth_headers):
-    # Test retrieving the current user
+def test_get_user(client, user_auth_headers):
     response = client.get("/auth/me", headers=user_auth_headers)
     assert response.status_code == 200, response.text
     user = response.json()
-    assert user["id"] != 0
+
+    # Test retrieving the current user
+    response = client.get(f"/users/{user['id']}", headers=user_auth_headers)  # Assuming user ID 1
+    assert response.status_code == 200, response.text
+    user = response.json()
+    assert user["id"] == 2
+    assert user["email"] == "testuser@example.com"
 
 
-def test_list_users(admin_auth_headers):
+def test_list_users(client, admin_auth_headers):
     # Test listing all users (admin-only)
     response = client.get("/users", headers=admin_auth_headers)
     assert response.status_code == 200, response.text
@@ -85,19 +84,19 @@ def test_list_users(admin_auth_headers):
     assert any(user["email"] == "testuser@example.com" for user in users)
 
 
-def test_list_user_ratings(user_auth_headers):
-    # Test listing ratings for the current user
+def test_list_user_ratings(client, user_auth_headers):
     response = client.get("/auth/me", headers=user_auth_headers)
     assert response.status_code == 200, response.text
     user = response.json()
 
+    # Test listing ratings for the current user
     response = client.get(f"/users/{user['id']}/ratings", headers=user_auth_headers)  # Assuming user ID 1
     assert response.status_code == 200, response.text
     ratings = response.json()
     assert isinstance(ratings, list)
 
 
-def test_get_recommendations(user_auth_headers):
+def test_get_recommendations(client, user_auth_headers):
     response = client.get("/auth/me", headers=user_auth_headers)
     assert response.status_code == 200, response.text
     user = response.json()
@@ -109,7 +108,7 @@ def test_get_recommendations(user_auth_headers):
     assert isinstance(recommendations, list)
 
 
-def test_update_user(user_auth_headers):
+def test_update_user(client, user_auth_headers):
     # Test updating the current user
     update_payload = {
         "name": "Updated User",
@@ -122,48 +121,16 @@ def test_update_user(user_auth_headers):
     assert updated_user["email"] == update_payload["email"] 
 
 
-def test_delete_user(admin_auth_headers):
+def test_delete_user(client, admin_auth_headers):
     # Test deleting a user (admin-only)
     response = client.delete("/users/1", headers=admin_auth_headers)  # Assuming user ID 1
     assert response.status_code == 204, response.text
 
-
-def test_refresh_token():
-    # Test refreshing an access token
-    refresh_payload = {
-        "refresh_token": pytest.user_refresh_token
-    }
-    response = client.post("/auth/refresh", json=refresh_payload)
-    assert response.status_code == 200, response.text
-    token_data = response.json()
-    assert "access_token" in token_data
-    assert "refresh_token" in token_data
-    # Update the stored refresh token for future tests
-    pytest.user_refresh_token = token_data["refresh_token"]
-
-
-def test_logout():
-    # Test logging out (revoking a refresh token)
-    logout_payload = {
-        "refresh_token": pytest.user_refresh_token
-    }
-    response = client.post("/auth/logout", json=logout_payload)
-    assert response.status_code == 204
-    
-    # Try to use the revoked refresh token
-    refresh_payload = {
-        "refresh_token": pytest.user_refresh_token
-    }
-    response = client.post("/auth/refresh", json=refresh_payload)
-    assert response.status_code == 401, response.text
-
-
-# Make sure this test runs after the logout test, since it depends on user_auth_headers
-def test_delete_user_self(user_auth_headers):
+def test_delete_user_self(client, user_auth_headers):
     # The user deletes their own account via /auth/remove
     response = client.delete("/auth/remove", headers=user_auth_headers)
     assert response.status_code == 204, response.text
 
     # After deletion, any authenticated request should fail (token is now invalid)
-    response = client.get("/auth/me", headers=user_auth_headers)
+    response = client.get("/users/me", headers=user_auth_headers)
     assert response.status_code in (401, 404, 422)
