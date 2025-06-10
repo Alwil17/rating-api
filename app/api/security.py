@@ -7,7 +7,6 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.config import settings
 from sqlalchemy.orm import Session
-from app.infrastructure.database import get_db
 from app.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 
 credentials_exception = HTTPException(
@@ -33,11 +32,7 @@ def verify_token(token: str):
             raise credentials_exception
         return username
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise credentials_exception
 
 def get_current_user_role(token: str = Depends(oauth2_scheme)) -> str:
     try:
