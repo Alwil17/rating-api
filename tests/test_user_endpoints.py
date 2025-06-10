@@ -22,8 +22,11 @@ def admin_auth_headers():
     }
     response = client.post("/auth/token", data=form_data)
     assert response.status_code == 200, response.text
-    token = response.json()["access_token"]
-    return {"Authorization": f"Bearer {token}"}
+    token_data = response.json()
+    access_token = token_data["access_token"]
+    # Store the refresh token for later tests
+    pytest.admin_refresh_token = token_data["refresh_token"]
+    return {"Authorization": f"Bearer {access_token}"}
 
 
 @pytest.fixture
@@ -44,8 +47,11 @@ def user_auth_headers():
     }
     response = client.post("/auth/token", data=form_data)
     assert response.status_code == 200, response.text
-    token = response.json()["access_token"]
-    return {"Authorization": f"Bearer {token}"}
+    token_data = response.json()
+    access_token = token_data["access_token"]
+    # Store the refresh token for later tests
+    pytest.user_refresh_token = token_data["refresh_token"]
+    return {"Authorization": f"Bearer {access_token}"}
 
 
 def test_create_user(admin_auth_headers):
@@ -114,11 +120,43 @@ def test_delete_user(admin_auth_headers):
     response = client.delete("/users/1", headers=admin_auth_headers)  # Assuming user ID 1
     assert response.status_code == 204, response.text
 
+
+def test_refresh_token():
+    # Test refreshing an access token
+    refresh_payload = {
+        "refresh_token": pytest.user_refresh_token
+    }
+    response = client.post("/auth/refresh", json=refresh_payload)
+    assert response.status_code == 200, response.text
+    token_data = response.json()
+    assert "access_token" in token_data
+    assert "refresh_token" in token_data
+    # Update the stored refresh token for future tests
+    pytest.user_refresh_token = token_data["refresh_token"]
+
+
+def test_logout():
+    # Test logging out (revoking a refresh token)
+    logout_payload = {
+        "refresh_token": pytest.user_refresh_token
+    }
+    response = client.post("/auth/logout", json=logout_payload)
+    assert response.status_code == 204
+    
+    # Try to use the revoked refresh token
+    refresh_payload = {
+        "refresh_token": pytest.user_refresh_token
+    }
+    response = client.post("/auth/refresh", json=refresh_payload)
+    assert response.status_code == 401, response.text
+
+
+# Make sure this test runs after the logout test, since it depends on user_auth_headers
 def test_delete_user_self(user_auth_headers):
     # The user deletes their own account via /auth/remove
     response = client.delete("/auth/remove", headers=user_auth_headers)
     assert response.status_code == 204, response.text
 
     # After deletion, any authenticated request should fail (token is now invalid)
-    response = client.get("/users/me", headers=user_auth_headers)
+    response = client.get("/auth/me", headers=user_auth_headers)
     assert response.status_code in (401, 404, 422)
